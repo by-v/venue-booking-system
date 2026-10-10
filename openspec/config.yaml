@@ -1,0 +1,68 @@
+schema: spec-driven
+
+context: |
+  Proyek: Sistem Informasi Manajemen Reservasi Gedung untuk SATU venue,
+  H.A. Djunaid Convention Center (Pekalongan). Konteks penelitian (R&D, Agile Scrum).
+  Bukan sistem produksi venue.
+
+  SUMBER KEBENARAN (wajib dibaca sebelum menulis artefak apa pun):
+  - docs/business-rules-register.md : aturan bisnis BR-xx, state machine, daftar item TERBUKA
+  - docs/technical-decision-record.md : keputusan stack D1-D10
+
+  Cara memakai sumber:
+  - Aturan berlabel FINAL dan FINAL-DEFAULT boleh dispesifikasikan.
+  - Aturan berlabel PROVISIONAL boleh dispesifikasikan, tetapi requirement-nya harus diberi tanda PROVISIONAL.
+  - Item berlabel TERBUKA (T-xx) TIDAK BOLEH dijadikan perilaku sistem. Catat sebagai pertanyaan terbuka, jangan menebak.
+  - Jangan mengubah dua dokumen di atas. Jika artefak bertentangan dengan dokumen itu, berhenti dan laporkan.
+
+  Di luar scope tanpa persetujuan eksplisit: chatbot, fitur AI, SAW/rekomendasi venue,
+  payment gateway, pembayaran otomatis, otomatisasi WhatsApp, multi-venue/marketplace,
+  role Owner dan laporan, upload bukti bayar oleh customer, diskon, refund,
+  dan fitur apa pun yang tidak ada di register.
+
+  Data: jangan membuat data venue fiktif. Data uji untuk customer, reservasi, dan pembayaran
+  harus sintetis dan diberi label jelas. Arti "Fasilitas SDA" tidak diketahui, jangan diuraikan.
+
+  Bahasa: prosa artefak dalam Bahasa Indonesia. Heading template dan kata kunci normatif
+  mengikuti template OpenSpec apa adanya.
+
+  Konvensi lintas fitur: zona waktu aturan tanggal adalah Asia/Jakarta (WIB); uang disimpan
+  sebagai integer rupiah; data bisnis tidak dihapus (hanya status berubah); setiap perubahan
+  status mencatat waktu, status lama, status baru, alasan, dan pelaku.
+
+  Kondisi repo: belum ada kode aplikasi sebelum change foundation-auth diterapkan.
+  Jangan mengasumsikan struktur folder atau modul yang belum ada.
+
+rules:
+  proposal:
+    - "Sertakan bagian 'Di luar scope' yang eksplisit."
+    - "Rujuk ID aturan (BR-xx) yang disentuh oleh change ini."
+    - "Tampilkan item TERBUKA yang relevan sebagai pertanyaan terbuka, bukan sebagai keputusan."
+    - "Satu change mencakup satu kemampuan. Jangan menggabungkan change lain dari urutan di register Bagian 7."
+  specs:
+    - "Setiap requirement harus punya jejak ke ID aturan (BR-xx) atau kebutuhan fungsional."
+    - "Setiap requirement punya minimal satu skenario yang dapat diuji, termasuk kasus gagal dan kasus batas."
+    - "Gunakan contoh kasus uji dari register bila tersedia."
+    - "Jangan memuat perilaku dari item TERBUKA."
+  design:
+    - "Ikuti keputusan di docs/technical-decision-record.md. Penyimpangan harus dinyatakan beserta alasannya."
+    - "Jika relevan, jelaskan penegakan aturan di level database (constraint, transaksi), bukan hanya validasi aplikasi."
+    - "Tempatkan aturan bisnis di modul domain terpisah dari UI dan route handler."
+    - "Catat asumsi, alternatif yang ditolak, dan pertanyaan terbuka."
+    - "Jangan mengunci nomor versi paket dari ingatan. Versi diverifikasi saat pemasangan."
+  tasks:
+    - "Pecah menjadi tugas kecil (sekitar maksimal 2 jam), masing-masing merujuk requirement."
+    - "Sertakan tugas pengujian untuk setiap requirement. Tes aturan bisnis memakai PostgreSQL asli, bukan mock."
+    - "Jangan membuat tugas untuk fitur di luar change ini."
+    - "Akhiri dengan tugas verifikasi berisi perintah yang harus lulus."
+
+operations:
+  apply:
+    guidance:
+      - "Kerjakan hanya tugas yang tercantum di tasks.md. Jangan menambah fitur."
+      - "Jika ada ambiguitas atau konflik dengan register atau TDR, berhenti dan tanyakan. Jangan menebak."
+      - "Jangan menyatakan tugas selesai sebelum menjalankan tes atau perintah verifikasinya. Laporkan output apa adanya, termasuk kegagalan."
+      - "Jangan mengubah folder docs/ kecuali diminta. Jangan meng-commit secret atau file .env."
+  archive:
+    guidance:
+      - "Ringkas hasil change dan daftarkan pertanyaan terbuka yang masih tersisa."
