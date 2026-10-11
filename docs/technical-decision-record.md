@@ -1,6 +1,7 @@
 # Technical Decision Record
 **Sistem Informasi Manajemen Reservasi Gedung, H.A. Djunaid Convention Center**
-Versi: 1.0 | Tanggal: 10 Oktober 2026
+Versi: 1.1 | Tanggal: 12 Oktober 2026
+Perubahan v1.1: D10 diputuskan (dev/uji); D11 dan D12 ditambahkan.
 
 Dokumen ini mencatat keputusan teknis. Aturan bisnis ada di `docs/business-rules-register.md`.
 Nomor versi paket **tidak** dikunci di sini. Versi diverifikasi saat pemasangan dan dicatat oleh lockfile.
@@ -26,7 +27,9 @@ Nomor versi paket **tidak** dikunci di sini. Versi diverifikasi saat pemasangan 
 | D7 | Galeri: object storage (mis. Vercel Blob atau setara). Hanya admin yang mengunggah. | Disetujui |
 | D8 | Rate limiting form publik dan cek status (BR-32) membutuhkan penyimpanan bersama atau aturan firewall platform. Captcha **belum disetujui**. | Disetujui sebagian |
 | D9 | UI: Tailwind CSS dan komponen UI siap pakai (mis. shadcn/ui). | Disetujui |
-| D10 | Penyedia database untuk pengembangan, pengujian, dan deploy (mis. PostgreSQL lokal via Docker untuk dev/uji, PostgreSQL terkelola untuk deploy). | **Terbuka**, dibahas di design `foundation-auth` |
+| D10 | Database dev dan uji: **PostgreSQL native Windows** (tanpa Docker), role khusus aplikasi (bukan superuser), dua database terpisah `venue_booking` dan `venue_booking_test`. Penyedia database untuk deploy masih **terbuka**. | Diputuskan untuk dev/uji; deploy terbuka |
+| D11 | Rate limiting login (Better Auth, penyimpanan database) masuk change `foundation-auth`. Efektivitasnya bergantung pada header IP yang diisi platform. | Disetujui (PROVISIONAL, lihat `docs/nfr-keamanan-usulan.md`) |
+| D12 | Form login memakai client SDK Better Auth yang mengirim HTTP ke route handler, sehingga selalu melewati rate limiter. Tes memanggil route handler langsung. | Disetujui |
 
 ## 3. Batasan platform yang memengaruhi desain (Vercel)
 
@@ -41,4 +44,4 @@ Satu change dimulai hanya setelah change sebelumnya selesai dan diuji.
 
 ## 5. Hal yang sengaja belum diputuskan
 
-Struktur folder kode, versi paket, format Bukti Booking (D6), captcha (D8), penyedia database (D10), dan seluruh item TERBUKA di register Bagian 5.
+Struktur folder kode, versi paket, format Bukti Booking (D6), captcha (D8), penyedia database untuk deploy (D10), dan seluruh item TERBUKA di register Bagian 5.

@@ -7,7 +7,8 @@ context: |
 
   SUMBER KEBENARAN (wajib dibaca sebelum menulis artefak apa pun):
   - docs/business-rules-register.md : aturan bisnis BR-xx, state machine, daftar item TERBUKA
-  - docs/technical-decision-record.md : keputusan stack D1-D10
+  - docs/technical-decision-record.md : keputusan stack D1-D12
+  - docs/nfr-keamanan-usulan.md : usulan NFR keamanan (status DIUSULKAN, belum disetujui; requirement yang merujuknya diberi tanda USULAN)
 
   Cara memakai sumber:
   - Aturan berlabel FINAL dan FINAL-DEFAULT boleh dispesifikasikan.
@@ -50,6 +51,7 @@ rules:
     - "Tempatkan aturan bisnis di modul domain terpisah dari UI dan route handler."
     - "Catat asumsi, alternatif yang ditolak, dan pertanyaan terbuka."
     - "Jangan mengunci nomor versi paket dari ingatan. Versi diverifikasi saat pemasangan."
+    - "Setiap nama fungsi, opsi konfigurasi, atau API pihak ketiga (Better Auth, Drizzle, Next.js) wajib dikutip dari dokumentasi atau tipe paket yang terpasang, dengan URL atau path sumbernya. Jika tidak bisa dikutip, tandai [BELUM TERVERIFIKASI] dan jangan menulisnya sebagai fakta atau memberi label 'Terverifikasi'."
   tasks:
     - "Pecah menjadi tugas kecil (sekitar maksimal 2 jam), masing-masing merujuk requirement."
     - "Sertakan tugas pengujian untuk setiap requirement. Tes aturan bisnis memakai PostgreSQL asli, bukan mock."
