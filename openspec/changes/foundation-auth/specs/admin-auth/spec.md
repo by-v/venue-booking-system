@@ -4,7 +4,7 @@
 
 Menyediakan autentikasi admin yang aman menggunakan Better Auth. Mencakup login, logout, sesi database-backed dengan masa berlaku absolut, proteksi rute `/admin`, rate limiting, dan skrip seed untuk membuat akun admin pertama.
 
-**Jejak:** BR-14, TDR D3, D4
+**Jejak:** BR-14, NFR-SEC-01–07 (USULAN)
 
 ## ADDED Requirements
 
@@ -12,7 +12,7 @@ Menyediakan autentikasi admin yang aman menggunakan Better Auth. Mencakup login,
 
 Sistem SHALL mengimplementasikan autentikasi admin dengan email dan password. Sesi SHALL disimpan di database dengan masa berlaku absolut dari `AUTH_SESSION_MAX_AGE` dan SHALL NOT diperpanjang saat dipakai.
 
-**Jejak:** BR-14, TDR D3
+**Jejak:** NFR-SEC-01 (USULAN)
 
 #### Scenario: Login berhasil
 
@@ -35,11 +35,16 @@ Sistem SHALL mengimplementasikan autentikasi admin dengan email dan password. Se
 - **WHEN** masa berlaku sesi telah habis
 - **THEN** admin harus login ulang untuk mengakses rute terproteksi
 
+#### Scenario: AUTH_SESSION_MAX_AGE menentukan masa berlaku
+
+- **WHEN** `AUTH_SESSION_MAX_AGE` diset ke nilai tertentu
+- **THEN** masa berlaku sesi mengikuti nilai tersebut
+
 ### Requirement: Logout dan Pencabutan Sesi
 
 Sistem SHALL menyediakan fungsi logout yang menghapus sesi dari database dan mengarahkan ke `/login`. Sesi yang dicabut atau kedaluwarsa SHALL langsung tidak berlaku tanpa cache sesi di cookie.
 
-**Jejak:** BR-14, TDR D3
+**Jejak:** NFR-SEC-01 (USULAN)
 
 #### Scenario: Logout berhasil
 
@@ -56,11 +61,11 @@ Sistem SHALL menyediakan fungsi logout yang menghapus sesi dari database dan men
 
 Registrasi publik SHALL dinonaktifkan. Permintaan HTTP ke endpoint sign-up SHALL ditolak. Sistem SHALL NOT menyediakan halaman registrasi publik.
 
-**Jejak:** BR-14
+**Jejak:** BR-14, NFR-SEC-03 (USULAN)
 
 #### Scenario: Endpoint sign-up ditolak
 
-**GERBANG:** Status code penolakan ditentukan oleh tes (lihat Decision G dan H di design.md).
+**GERBANG:** Status code penolakan ditentukan oleh tes (lihat bagian Better Auth Integration dengan Next.js dan bagian Proteksi Rute: Dua Helper Functions di design.md).
 
 - **WHEN** user mengirim request ke endpoint sign-up
 - **THEN** request ditolak dengan status code error (ditentukan tes)
@@ -68,7 +73,7 @@ Registrasi publik SHALL dinonaktifkan. Permintaan HTTP ke endpoint sign-up SHALL
 #### Scenario: Tidak ada halaman registrasi
 
 - **WHEN** user mengakses `/sign-up` atau rute registrasi lainnya
-- **THEN** sistem mengembalikan 404 atau redirect ke halaman lain
+- **THEN** sistem mengembalikan 404
 
 ### Requirement: Satu Role Operasional
 
@@ -81,41 +86,41 @@ Sistem SHALL memiliki satu role operasional: Admin. Semua akun adalah Admin. Cus
 - **WHEN** akun dibuat melalui seed script
 - **THEN** akun tersebut memiliki akses penuh sebagai Admin
 
-#### Scenario: Customer tidak punya akun
-
-- **WHEN** sistem dijalankan
-- **THEN** tidak ada mekanisme untuk membuat akun customer
-
 ### Requirement: Kebijakan Password
 
 Password SHALL minimal 12 karakter. Kebijakan ini SHALL ditegakkan di konfigurasi auth, bukan hanya di seed script. Hashing password SHALL menggunakan algoritma bawaan Better Auth (scrypt).
 
-**Jejak:** TDR D3, D4
+**Jejak:** NFR-SEC-01 (USULAN)
 
 #### Scenario: Password minimal 12 karakter ditegakkan
 
-- **WHEN** user mencoba membuat akun dengan password kurang dari 12 karakter
+- **WHEN** API auth dipanggil langsung (bukan lewat validasi seed) dengan password kurang dari 12 karakter
 - **THEN** sistem menolak dengan pesan galat
 
-#### Scenario: Password di-hash dengan scrypt
+#### Scenario: Password tidak tersimpan sebagai plaintext
 
-- **WHEN** password disimpan di database
-- **THEN** password di-hash menggunakan scrypt (algoritma default Better Auth)
+**GERBANG:** Verifikasi format hash scrypt (lihat bagian Password Hashing: Scrypt (Better Auth Default) di design.md).
+
+- **WHEN** akun credential dibuat melalui seed script
+- **THEN** password tidak tersimpan sebagai plaintext di database
+- **AND** akun credential tersebut dapat dipakai login
 
 ### Requirement: Rate Limiting Login
 
 Sistem SHALL membatasi jumlah request ke jalur sign-in per jendela waktu per sumber IP. Pembatasan SHALL disimpan di database. Batas konkret: 5 request per 900 detik (15 menit).
 
-**Jejak:** TDR D3
+**Jejak:** NFR-SEC-04 (USULAN)
 
 **PROVISIONAL:** Efektif hanya jika header IP diisi oleh platform, bukan klien.
 
-**GERBANG:** Verifikasi bahwa header IP untuk deployment platform (Vercel) diisi oleh platform dan tidak dapat dipalsukan klien (lihat Decision E di design.md).
+**GERBANG:** Verifikasi bahwa header IP untuk deployment platform (Vercel) diisi oleh platform dan tidak dapat dipalsukan klien (lihat bagian Konfigurasi Better Auth Tunggal di design.md).
+
+**Catatan:** Request ke jalur sign-in yang berhasil juga dihitung terhadap batas.
 
 #### Scenario: Request ke-6 ditolak
 
 - **WHEN** sumber IP yang sama mengirim 6 request ke jalur sign-in dalam jendela 900 detik
-- **THEN** request ke-6 ditolak dengan status code rate limit
+- **THEN** request ke-6 ditolak (status ditentukan tes)
 
 #### Scenario: Rate limit direset setelah jendela waktu
 
@@ -126,9 +131,9 @@ Sistem SHALL membatasi jumlah request ke jalur sign-in per jendela waktu per sum
 
 Cookie sesi SHALL memiliki atribut: httpOnly, SameSite Lax atau Strict, dan Secure di production.
 
-**Jejak:** TDR D3
+**Jejak:** NFR-SEC-02 (USULAN)
 
-**GERBANG:** Nilai default Better Auth untuk httpOnly dan SameSite harus diverifikasi melalui tes yang memeriksa header Set-Cookie dari respons login nyata (lihat Decision I di design.md).
+**GERBANG:** Nilai default Better Auth untuk httpOnly dan SameSite harus diverifikasi melalui tes yang memeriksa header Set-Cookie dari respons login nyata (lihat bagian Cookie Attributes (Better Auth) di design.md).
 
 #### Scenario: Cookie memiliki atribut httpOnly
 
@@ -153,7 +158,7 @@ Rute `/admin` dan semua subpath SHALL dilindungi dengan dua lapis:
 
 Header path asli SHALL diatur oleh proxy pada REQUEST headers dan SHALL menimpa nilai dari klien.
 
-**Jejak:** BR-14, TDR D3
+**Jejak:** NFR-SEC-05 (USULAN)
 
 #### Scenario: Akses tanpa login ke /admin diredirect oleh proxy
 
@@ -181,11 +186,27 @@ Header path asli SHALL diatur oleh proxy pada REQUEST headers dan SHALL menimpa 
 - **WHEN** request ke `/admin` diterima dengan header `x-original-pathname` dari klien
 - **THEN** proxy menimpa header tersebut dengan pathname request sebenarnya
 
+#### Scenario: Cookie ada tetapi sesi tidak valid
+
+- **WHEN** request membawa cookie sesi tetapi sesi tidak valid atau kedaluwarsa
+- **THEN** proxy meloloskan request
+- **AND** helper menolak dan redirect ke `/login`
+
+#### Scenario: /login dan /api/auth/* tidak diproteksi proxy
+
+- **WHEN** request menuju `/login` atau `/api/auth/*`
+- **THEN** proxy tidak memblokir request tersebut
+
+#### Scenario: Server Action tanpa sesi tidak menjalankan logika aksi
+
+- **WHEN** Server Action dipanggil tanpa sesi valid
+- **THEN** helper menolak sebelum logika aksi dijalankan
+
 ### Requirement: Penegakan Pemanggilan Helper
 
 Setiap file dengan directive `'use server'` di `src/**` serta setiap page dan route di `src/app/admin/**` SHALL memanggil helper yang sesuai. Pemeriksaan SHALL memverifikasi PEMANGGILAN (bukan hanya import). Daftar pengecualian kosong secara default.
 
-**Jejak:** BR-14, TDR D3
+**Jejak:** NFR-SEC-05 (USULAN)
 
 #### Scenario: File 'use server' wajib memanggil helper
 
@@ -211,7 +232,7 @@ Setiap file dengan directive `'use server'` di `src/**` serta setiap page dan ro
 
 Setelah login, redirect SHALL hanya ke path internal `/admin` atau path yang diawali `/admin/`. Fallback SHALL `/admin`.
 
-**Jejak:** TDR D4
+**Jejak:** NFR-SEC-06 (USULAN)
 
 #### Scenario: https://evil.com ditolak
 
@@ -278,11 +299,21 @@ Setelah login, redirect SHALL hanya ke path internal `/admin` atau path yang dia
 - **WHEN** parameter redirect adalah `/admin/settings`
 - **THEN** sistem redirect ke `/admin/settings`
 
+#### Scenario: Parameter redirect kosong atau tidak ada
+
+- **WHEN** parameter redirect kosong atau tidak ada
+- **THEN** sistem redirect ke `/admin`
+
+#### Scenario: Sanitasi redirect dipakai di dua titik
+
+- **WHEN** parameter redirect dibuat dan ketika dipakai di halaman login
+- **THEN** `resolveSafeRedirect()` dipakai di kedua titik tersebut
+
 ### Requirement: Halaman Login dan Dashboard
 
 Sistem SHALL menyediakan halaman `/login` dengan form email dan password yang divalidasi dengan skema Zod yang sama di klien dan server. Sistem SHALL menyediakan dashboard `/admin` kosong yang membuktikan proteksi rute berfungsi.
 
-**Jejak:** BR-14, TDR D4
+**Jejak:** NFR-SEC-01, NFR-SEC-05 (USULAN)
 
 #### Scenario: Form login menampilkan validasi klien
 
@@ -308,9 +339,9 @@ Sistem SHALL menyediakan skrip seed interaktif untuk membuat akun admin pertama.
 - Menampilkan host dan nama database target
 - Meminta konfirmasi sebelum menulis ke database
 
-**Jejak:** BR-14, TDR D4
+**Jejak:** NFR-SEC-07 (USULAN)
 
-**GERBANG:** Akun hasil seed harus dapat login (lihat Decision K di design.md untuk verifikasi bentuk argumen `signUpEmail`).
+**GERBANG:** Akun hasil seed harus dapat login (lihat bagian Seed Script untuk Admin Pertama di design.md untuk verifikasi bentuk argumen `signUpEmail`).
 
 #### Scenario: Email dan password diminta secara interaktif
 
@@ -337,9 +368,15 @@ Sistem SHALL menyediakan skrip seed interaktif untuk membuat akun admin pertama.
 - **WHEN** skrip seed menampilkan target database
 - **THEN** skrip meminta konfirmasi (y/n) sebelum membuat akun
 
+#### Scenario: Konfirmasi dijawab tidak
+
+- **WHEN** user menjawab konfirmasi dengan "n"
+- **THEN** tidak ada akun yang dibuat
+- **AND** skrip berhenti tanpa galat
+
 #### Scenario: Akun hasil seed dapat login
 
-**GERBANG:** Verifikasi dengan tes end-to-end bahwa akun yang dibuat oleh seed script dapat login.
+**GERBANG:** Verifikasi dengan tes integrasi bahwa akun yang dibuat oleh seed script dapat login.
 
 - **WHEN** akun dibuat melalui seed script
 - **THEN** akun tersebut dapat login dengan email dan password yang dimasukkan

@@ -582,6 +582,11 @@ $env:DATABASE_URL="<production-url>"; npx tsx scripts/seed-admin.ts
 **5. Redirect Browser:**
 - Uji manual atau change berikutnya (Playwright di luar scope)
 
+**6. Tes Render Komponen dan Halaman:**
+- `@testing-library/react` dengan environment `jsdom` untuk merender komponen klien dan halaman
+- Membuktikan validasi klien menampilkan pesan tanpa request ke server
+- **[BELUM TERVERIFIKASI]** Plugin Vite untuk React (mis. `@vitejs/plugin-react`) agar JSX/TSX ter-transform di Vitest, dan cara mengaktifkan environment `jsdom` per berkas tes. Dijadikan gerbang (grup 8).
+
 ### M. Database Test
 
 **`vitest.config.ts`:**
@@ -698,6 +703,10 @@ export default defineConfig({
 - `dotenv`
 - `@inquirer/prompts`
 - `ts-morph` (dev) - Untuk tes statis dengan AST parser. Pilihan: `ts-morph` lebih tingkat tinggi dan mudah untuk traversal AST dibanding `@typescript-eslint/parser` yang lebih low-level.
+- `jsdom` (dev) - Environment DOM untuk Vitest agar dapat merender komponen klien dan halaman.
+- `@testing-library/react` (dev) - Merender komponen klien dan halaman serta memvalidasi validasi klien tanpa request ke server.
+
+**[BELUM TERVERIFIKASI]** Kebutuhan plugin Vite untuk React (mis. `@vitejs/plugin-react`) agar JSX/TSX ter-transform di Vitest, dan cara mengaktifkan environment `jsdom` per berkas tes (mis. komentar `// @vitest-environment jsdom`). Dijadikan gerbang (grup 8).
 
 ## Risks / Trade-offs
 

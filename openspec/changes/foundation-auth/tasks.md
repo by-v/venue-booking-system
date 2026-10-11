@@ -1,49 +1,167 @@
 # Tasks
 
-## 1. Setup Project Structure
+## 1. Prasyarat
 
-- [ ] 1.1 Initialize Next.js project with App Router and TypeScript strict mode (verify `npm run build` succeeds without errors)
-- [ ] 1.2 Verify project contains `next.config.js`, `tsconfig.json`, and `package.json` in root directory
+- [ ] 1.1 Verifikasi prasyarat tool tersedia dengan menjalankan `node -v`, `npm -v`, `git --version`, dan `psql --version` di PowerShell; jika salah satu tidak ada, berhenti dan tanyakan user. (prasyarat)
+- [ ] 1.2 [LANGKAH MANUAL] Minta user membuat role dan dua database dengan menjalankan `psql -U postgres` lalu perintah `CREATE ROLE app_user WITH LOGIN PASSWORD '<isi-sendiri>';`, `CREATE DATABASE venue_booking OWNER app_user;`, dan `CREATE DATABASE venue_booking_test OWNER app_user;` (placeholder password diisi sendiri oleh user). Agen berhenti sampai user mengonfirmasi. (prasyarat)
 
-## 2. Dependencies
+## 2. Scaffold Proyek
 
-- [ ] 2.1 Add dependencies: next, better-auth, typescript, drizzle-orm, pg, zod, vitest (verify `npm install` completes without errors)
-- [ ] 2.2 Verify `npm ls` shows all dependencies installed
+- [ ] 2.1 [GERBANG] Verifikasi flag non-interaktif `npx create-next-app` dari dokumentasi online Next.js CLI (cadangan bila tidak dapat diakses: `npx create-next-app --help`); tulis flag final dan sumbernya ke Hasil Verifikasi (V1); jika gagal, berhenti dan tanyakan user. (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [ ] 2.2 Jalankan `npx create-next-app@latest next-app` di folder sementara di luar repo dengan flag V1; verifikasi folder `next-app` terbuat tanpa prompt interaktif (`Get-ChildItem next-app`). (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [ ] 2.3 Pindahkan `package.json`, `package-lock.json`, `tsconfig.json`, konfigurasi Next.js, `src/`, `public/`, konfigurasi ESLint, dan berkas CSS/Tailwind ke root repo, lalu gabungkan `.gitignore`; verifikasi berkas-berkas tersebut ada di root (`Get-ChildItem`). (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [ ] 2.4 Ganti `name` di `package.json` menjadi `venue-booking-system`; verifikasi `Get-Content package.json | Select-String "venue-booking-system"`. (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [ ] 2.5 Hapus folder sementara `next-app`; verifikasi folder tidak ada lagi (`Get-ChildItem`). (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [ ] 2.6 Jalankan `npm install` di root repo; verifikasi selesai tanpa galat. (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [ ] 2.7 Jalankan `npm run build`; verifikasi build Next.js berhasil. (Aplikasi Next.js App Router dengan TypeScript Strict)
 
-## 3. Configuration
+## 3. Dependensi
 
-- [ ] 3.1 Create `drizzle.config.ts` with PostgreSQL connection setup (verify file exists and contains connection string)
-- [ ] 3.2 Create `.env.example` with placeholder environment variables (verify file contains required variables)
-- [ ] 3.3 Add Zod validation schema for environment variables (verify validation code runs at startup without crashing)
+- [ ] 3.1 Tambahkan dependensi `better-auth`, `drizzle-orm`, `drizzle-kit`, `pg`, `@types/pg`, `zod`, `dotenv`, `@inquirer/prompts`, `tsx`, `vitest`, `ts-morph`, `jsdom`, dan `@testing-library/react`; verifikasi `npm ls` menampilkan semuanya. (Koneksi PostgreSQL dengan Drizzle ORM)
+- [ ] 3.2 Tambahkan skrip npm `lint`, `typecheck`, `build`, `test`, `db:generate`, `db:migrate`, dan `db:check`; verifikasi `npm run` menampilkan semuanya tanpa galat. (Skrip NPM Tersedia)
 
-## 4. Database Setup
+## 4. Modul Environment dan Database (kode saja)
 
-- [ ] 4.1 Create `docker-compose.yml` for PostgreSQL (verify file exists)
-- [ ] 4.2 Run `docker compose up -d` and verify PostgreSQL container is running (check container status)
-- [ ] 4.3 Create initial migration files for Drizzle (verify migration files exist in `migrations/` directory)
+- [ ] 4.1 Buat `src/lib/env.ts` dengan fungsi murni `parseEnv(source)` dan `const env`; verifikasi `npm run typecheck` lulus (tes env ditunda ke grup 5). (Validasi Environment dengan Zod)
+- [ ] 4.2 Buat `src/lib/load-env.ts` (dotenv, path eksplisit `.env.local`, `override: false`); verifikasi `npm run typecheck` lulus (tes load-env ditunda ke grup 5). (Pemuatan .env.local oleh Tool)
+- [ ] 4.3 Buat `.env.example` dengan semua variabel (`DATABASE_URL`, `TEST_DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `AUTH_SESSION_MAX_AGE`) dan placeholder; verifikasi tidak memuat secret nyata dengan `Get-Content .env.example`. (Berkas .env.example Tanpa Secret)
+- [ ] 4.4 Perbarui `.gitignore` agar mengabaikan `.env*` kecuali `.env.example`; verifikasi `git check-ignore .env.local` mengabaikan berkas itu sedangkan `.env.example` tidak diabaikan. (Git Ignore untuk Environment Files)
+- [ ] 4.5 [LANGKAH MANUAL] Minta user menyalin `.env.example` ke `.env.local` dan mengisi nilainya, serta membuat `BETTER_AUTH_SECRET` sendiri dengan `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Agen TIDAK membaca atau mencetak `.env.local` maupun hasil secret. Agen berhenti dan menunggu konfirmasi user sebelum melanjutkan ke grup 5. (prasyarat)
+- [ ] 4.6 Buat `src/lib/db/index.ts` dengan satu instance `db` (Pool pg + drizzle) yang mendukung transaksi; verifikasi `npm run typecheck` lulus (tes koneksi, commit, dan rollback ditunda ke grup 6). (Koneksi PostgreSQL dengan Drizzle ORM)
 
-## 5. Authentication
+## 5. Harness Vitest
 
-- [ ] 5.1 Configure Better Auth with session table and Admin role (verify session table exists in database)
-- [ ] 5.2 Implement `/login` page with email and password fields (verify page renders correctly)
-- [ ] 5.3 Add Zod validation for login form (verify invalid inputs show error messages)
-- [ ] 5.4 Protect `/admin` route with auth middleware (verify unauthenticated access redirects to `/login`)
+- [ ] 5.1 [GERBANG] Verifikasi alias `@` pada Vitest dan dukungan path `tsconfig` pada `tsx` dari dokumentasi online (cadangan: tipe paket di `node_modules` atau percobaan terukur); tulis sumbernya ke Hasil Verifikasi (V2); jika gagal, berhenti dan tanyakan user. (Pemuatan .env.local oleh Tool)
+- [ ] 5.2 [GERBANG] Verifikasi opsi eksekusi serial Vitest (`fileParallelism`/`maxWorkers`) dari dokumentasi online (cadangan: `node_modules`); tulis sumbernya ke Hasil Verifikasi (V3); jika gagal, berhenti dan tanyakan user. (Tes Database Serial)
+- [ ] 5.3 [GERBANG] Verifikasi cara mendapatkan `__dirname`/`import.meta.url` di `vitest.config.ts` ESM dari dokumentasi online (cadangan: `node_modules`); tulis sumbernya ke Hasil Verifikasi (V5); jika gagal, berhenti dan tanyakan user. (Pemuatan .env.local oleh Tool)
+- [ ] 5.4 Buat fungsi murni `assertSafeTestDatabase({ testUrl, devUrl })` di `tests/helpers/assert-safe-test-db.ts` yang melempar galat untuk: `testUrl` kosong, nama database dari hasil parse URL tidak berakhiran `_test`, atau nama database sama dengan database dev; verifikasi `npm run typecheck` lulus (tes guard ditulis di 5.14). (Database Uji Terpisah)
+- [ ] 5.5 Buat `tests/setup-db.ts` yang memanggil `assertSafeTestDatabase({ testUrl: process.env.TEST_DATABASE_URL, devUrl: process.env.DATABASE_URL })`; verifikasi `npm run typecheck` lulus (tes guard ditulis di 5.14; penerapan migrasi ke database uji dan `afterEach(truncateAll)` ditambahkan di 7.10). (Database Uji Terpisah)
+- [ ] 5.6 Buat `vitest.config.ts` (impor `load-env`, alias `@`, `setupFiles` menunjuk `tests/setup-db.ts` dari 5.5, memanggil `assertSafeTestDatabase` dari 5.4, `DATABASE_URL` proses uji diganti `TEST_DATABASE_URL`, eksekusi serial sesuai V3); verifikasi `npx vitest run --passWithNoTests` selesai tanpa galat. (Pemuatan .env.local oleh Tool)
+- [ ] 5.7 [GERBANG] Verifikasi letak dan nama tabel migrasi Drizzle dari dokumentasi online (cadangan: `node_modules` atau percobaan terukur); tulis sumbernya ke Hasil Verifikasi (V4); jika gagal, berhenti dan tanyakan user. (Migrasi dan Pembersihan Database Uji)
+- [ ] 5.8 Buat helper `truncateAll()` di `tests/helpers/truncate.ts` dengan pengecekan `SELECT current_database()` berakhiran `_test` dan pengecualian tabel migrasi; verifikasi `npm run typecheck` lulus (tes truncate ditulis di 5.15 dan memakai tabel sementara di database uji karena tabel auth belum ada). (Pengecekan current_database(), Migrasi dan Pembersihan Database Uji)
+- [ ] 5.9 Verifikasi tes env dengan menulis `tests/env.test.ts` (kasus sukses, variabel wajib hilang, format salah, `BETTER_AUTH_SECRET` kurang dari 32 karakter) lalu menjalankan `npm run test -- tests/env.test.ts`. (Validasi Environment dengan Zod)
+- [ ] 5.10 Verifikasi tes env-import dengan menulis `tests/env-import.test.ts` (modul env dengan variabel tidak valid melempar galat saat impor) lalu menjalankan `npm run test -- tests/env-import.test.ts`. (Validasi Environment dengan Zod)
+- [ ] 5.11 Verifikasi tes load-env dengan menulis `tests/load-env.test.ts` (`.env.local` termuat dan variabel shell tidak ditimpa) lalu menjalankan `npm run test -- tests/load-env.test.ts`. (Pemuatan .env.local oleh Tool)
+- [ ] 5.12 Verifikasi tes env-example dengan menulis `tests/env-example.test.ts` (tidak ada secret atau nilai produksi) lalu menjalankan `npm run test -- tests/env-example.test.ts`. (Berkas .env.example Tanpa Secret)
+- [ ] 5.13 Verifikasi tes vitest-env dengan menulis `tests/vitest-env.test.ts` (koneksi aplikasi di bawah tes menuju database uji) lalu menjalankan `npm run test -- tests/vitest-env.test.ts`. (Pemuatan .env.local oleh Tool)
+- [ ] 5.14 Verifikasi tes guard dengan menulis `tests/guard.test.ts` yang memanggil fungsi murni `assertSafeTestDatabase` untuk ketiga kasus (tanpa `TEST_DATABASE_URL`, tanpa akhiran `_test`, sama dengan dev) tanpa memuat harness; lalu menjalankan `npm run test -- tests/guard.test.ts`. (Database Uji Terpisah)
+- [ ] 5.15 Verifikasi tes truncate dengan menulis `tests/truncate.test.ts` (membuat tabel sementara di database uji karena tabel auth belum ada; tabel aplikasi dikosongkan, tabel migrasi tidak) lalu menjalankan `npm run test -- tests/truncate.test.ts`. (Pengecekan current_database(), Migrasi dan Pembersihan Database Uji)
+- [ ] 5.16 Verifikasi tes serial dengan menulis `tests/serial-a.test.ts` dan `tests/serial-b.test.ts` (dua file berbagi database berjalan serial) lalu menjalankan `npm run test -- tests/serial-a.test.ts tests/serial-b.test.ts`. (Tes Database Serial)
 
-## 6. Dashboard
+## 6. Database
 
-- [ ] 5.5 Implement `/admin` dashboard page with placeholder content (verify page loads for authenticated admin)
-- [ ] 5.6 Add navigation link to `/login` when not logged in (verify redirect works)
+- [ ] 6.1 Verifikasi tes koneksi, commit, dan rollback untuk `src/lib/db/index.ts` dengan menulis `tests/db.test.ts` lalu menjalankan `npm run test -- tests/db.test.ts`. (Koneksi PostgreSQL dengan Drizzle ORM)
+- [ ] 6.2 Buat `drizzle.config.ts` (dialect postgresql, schema `./src/lib/db/schema.ts`, out `./migrations`, url dari `env.DATABASE_URL`); verifikasi `npm run typecheck` lulus. (Migrasi Database)
+- [ ] 6.3 Buat `scripts/db-check.ts` yang memuat `load-env` lalu mencetak `SELECT current_database()`, dan tambahkan skrip npm `db:check`; verifikasi `npm run db:check` mencetak nama database (menggantikan tugas `psql "$DATABASE_URL"`). (Koneksi PostgreSQL dengan Drizzle ORM)
 
-## 7. Seed Script
+## 7. Better Auth dan Skema
 
-- [ ] 6.1 Create `seed-admin` CLI script (verify script can be executed and prompts for password)
-- [ ] 6.2 Verify seed script creates admin user without hardcoded credentials
-- [ ] 6.3 Verify duplicate admin creation is rejected (verify error message)
+- [ ] 7.1 [GERBANG] Verifikasi perintah CLI generate skema Better Auth dari dokumentasi online (cadangan: `--help` atau `node_modules`), termasuk cara CLI memuat konfigurasi dan environment (CLI mungkin tidak memuat `.env.local`) dan, bila perlu, cara mengatasinya tanpa mengubah `load-env.ts`; tulis sumbernya ke Hasil Verifikasi (V6); jika gagal, berhenti dan tanyakan user. (Tabel Better Auth dari Migrasi)
+- [ ] 7.2 [GERBANG] Verifikasi format kunci `customRules` rate limit Better Auth dari dokumentasi online (cadangan: `node_modules`); tulis sumbernya ke Hasil Verifikasi (V7); jika gagal, berhenti dan tanyakan user. (Rate Limiting Login)
+- [ ] 7.3 [GERBANG] Verifikasi header IP tepercaya Vercel untuk `advanced.ipAddress` dari dokumentasi online (cadangan: `node_modules`); HASIL DICATAT dan TIDAK MENGHENTIKAN APPLY; bila tak dapat dipastikan sebelum deploy tulis "belum terverifikasi, rate limiting tetap PROVISIONAL"; tulis ke Hasil Verifikasi (V8). (Rate Limiting Login)
+- [ ] 7.4 [GERBANG] Verifikasi cara Better Auth melaporkan selisih antara skema basis data dan konfigurasi dari dokumentasi online (cadangan: `node_modules`); tulis sumbernya ke Hasil Verifikasi (V9); jika gagal, berhenti dan tanyakan user. (Tabel Better Auth dari Migrasi)
+- [ ] 7.5 [GERBANG] Verifikasi bentuk argumen `signUpEmail` (termasuk `name`) dari dokumentasi online (cadangan: `node_modules`); tulis sumbernya ke Hasil Verifikasi (V14); jika gagal, berhenti dan tanyakan user. (Seed Admin Pertama)
+- [ ] 7.6 Buat `src/lib/auth.ts` dengan SATU fungsi `createAuth({ allowSignUp })`: `secret` dan `baseURL` dari `env`; `database: drizzleAdapter(db, { provider: "pg" })`; `session.expiresIn` dari `env.AUTH_SESSION_MAX_AGE` dengan `disableSessionRefresh: true`; `emailAndPassword.disableSignUp` dari argumen dan `minPasswordLength: 12`; `disabledPaths` untuk instance aplikasi; dan `rateLimit` (storage database, `customRules` sesuai V7, `ipAddress` sesuai V8). Verifikasinya adalah tes di grup 7 dan 9 (bukan hanya typecheck). (Autentikasi Email dan Password, Registrasi Publik Dinonaktifkan, Kebijakan Password, Rate Limiting Login, Atribut Cookie Sesi)
+- [ ] 7.7 Generate skema Better Auth ke `src/lib/db/auth-schema.ts` dengan perintah V6 dan ekspor dari `src/lib/db/schema.ts`; jika `drizzleAdapter` membutuhkan skema pada instance `db`, perbarui `src/lib/db/index.ts` setelah `auth-schema.ts` ada, catat di Hasil Verifikasi, dan jalankan ulang `npm run test -- tests/db.test.ts`; verifikasi `Get-ChildItem src/lib/db/auth-schema.ts`. (Tabel Better Auth dari Migrasi)
+- [ ] 7.8 Jalankan `npm run db:generate`; verifikasi berkas SQL baru muncul di folder `migrations/`. (Migrasi Database)
+- [ ] 7.9 Jalankan `npm run db:migrate` dua kali; verifikasi kedua eksekusi sukses (idempoten). (Migrasi Database)
+- [ ] 7.10 Perbarui `tests/setup-db.ts` dengan (a) penerapan migrasi ke database uji, didahului pengecekan `SELECT current_database()` berakhiran `_test`, dan (b) pemasangan `afterEach(truncateAll)`; verifikasi `npm run typecheck` lulus. (Migrasi dan Pembersihan Database Uji)
+- [ ] 7.11 Verifikasi `tests/clean-between-tests.test.ts` (dua tes berurutan; data yang dimasukkan tes pertama tidak ada di tes kedua) lalu jalankan `npm run test -- tests/clean-between-tests.test.ts`. (Migrasi dan Pembersihan Database Uji)
+- [ ] 7.12 Buat fungsi murni `createFirstAdmin({ email, password })` di `src/modules/auth/` (memakai `createAuth({ allowSignUp: true })`); verifikasi `npm run typecheck` lulus. (Seed Admin Pertama)
+- [ ] 7.13 Buat `tests/helpers/create-user.ts` yang memanggil `createFirstAdmin` sebagai pabrik pengguna uji untuk tes di grup 7 dan 9; verifikasi `npm run typecheck` lulus. (Seed Admin Pertama)
+- [ ] 7.14 Verifikasi tes bahwa migrasi diterapkan ke database uji sebelum suite berjalan (hasil 7.10) dengan menulis `tests/migrate-before.test.ts` lalu menjalankan `npm run test -- tests/migrate-before.test.ts`. (Migrasi dan Pembersihan Database Uji)
+- [ ] 7.15 Verifikasi tes selisih skema dengan menulis `tests/schema-diff.test.ts` (tanpa selisih; tabel auth termasuk `rateLimit` ada dan Better Auth tidak membuat tabel saat skema tidak cocok) lalu menjalankan `npm run test -- tests/schema-diff.test.ts`. (Tabel Better Auth dari Migrasi)
+- [ ] 7.16 Verifikasi tes kebijakan password dengan menulis `tests/password-policy.test.ts` (password pendek ditolak dengan menyebut panjang minimum) lalu menjalankan `npm run test -- tests/password-policy.test.ts`. (Kebijakan Password)
 
-## 8. Testing
+## 8. Redirect
 
-- [ ] 8.1 Configure Vitest to use test database (verify test setup file exists)
-- [ ] 8.2 Write test for authentication success flow (verify test passes with valid credentials)
-- [ ] 8.3 Write test for authentication failure (verify test fails with invalid credentials)
-- [ ] 8.4 Write test for route protection (verify unauthenticated access is blocked)
-- [ ] 8.5 Verify test database is cleaned after each test run (verify no leftover data)
+- [ ] 8.1 Buat `resolveSafeRedirect()` yang hanya menerima tujuan internal; verifikasi `tests/redirect-reject.test.ts` memakai SEMUA vektor di spec admin-auth (protokol eksternal, `https://evil.com/admin`, `//evil.com`, `/\evil.com`, `/%2F/evil.com`, karakter tab SEBENARNYA bukan string "\t", `/administrator`, `/admin/../login`, `/admin%2F..`, `/admin%5C..`, `/admin/%2e%2e/login`) lalu jalankan `npm run test -- tests/redirect-reject.test.ts`. (Proteksi Open Redirect)
+- [ ] 8.2 Verifikasi `tests/redirect-accept.test.ts` (`/admin` dan `/admin/settings` diterima) lalu jalankan `npm run test -- tests/redirect-accept.test.ts`. (Proteksi Open Redirect)
+- [ ] 8.3 Verifikasi `tests/redirect-fallback.test.ts` (parameter kosong atau tidak ada menghasilkan fallback `/admin`) lalu jalankan `npm run test -- tests/redirect-fallback.test.ts`. (Proteksi Open Redirect)
+
+## 9. Route Handler dan Login
+
+- [ ] 9.1 [GERBANG] Verifikasi client SDK Better Auth (`createAuthClient`) dari dokumentasi online (cadangan: `node_modules`); tulis sumbernya ke Hasil Verifikasi (V10); jika gagal, berhenti dan tanyakan user. (Halaman Login dan Dashboard)
+- [ ] 9.2 Buat route handler `src/app/api/auth/[...all]/route.ts` dengan `toNextJsHandler`, lalu jalankan percobaan login pertama untuk menentukan kebutuhan header `Origin` dan tulis hasilnya ke Hasil Verifikasi (V12) SEBELUM menulis `tests/auth-route.test.ts`; setelah itu jalankan `npm run test -- tests/auth-route.test.ts`. (Autentikasi Email dan Password)
+- [ ] 9.3 [GERBANG] Verifikasi atribut cookie (`httpOnly`, `SameSite`) dari respons login nyata maupun dokumentasi online; tulis sumbernya ke Hasil Verifikasi (V13); jika gagal, berhenti dan tanyakan user. (Atribut Cookie Sesi)
+- [ ] 9.4 [GERBANG] Verifikasi nama dan prefiks cookie sesi serta helper `getSessionCookie` dari dokumentasi online (cadangan: `node_modules`); tulis sumbernya ke Hasil Verifikasi (V11); jika gagal, berhenti dan tanyakan user. (Proteksi Rute /admin dengan Proxy dan Helper)
+- [ ] 9.5 [GERBANG] Verifikasi kebutuhan plugin Vite untuk React (mis. `@vitejs/plugin-react`) dan environment `jsdom` per berkas tes dari dokumentasi online (cadangan: `node_modules` atau percobaan terukur); bila V17 mensyaratkan devDependency, tambahkan ke `package.json` dan catat di Hasil Verifikasi; tulis sumbernya ke V17; jika gagal, berhenti dan tanyakan user. (Halaman Login dan Dashboard)
+- [ ] 9.6 Buat halaman `/login` dengan form email/password dan skema Zod bersama untuk klien dan server; verifikasi `tests/login-form.test.ts` (validasi klien menampilkan pesan tanpa request ke server) lalu jalankan `npm run test -- tests/login-form.test.ts`. (Halaman Login dan Dashboard)
+- [ ] 9.7 Buat halaman dashboard `/admin` yang kosong; verifikasi `tests/dashboard.test.ts` lalu jalankan `npm run test -- tests/dashboard.test.ts`. (Halaman Login dan Dashboard)
+- [ ] 9.8 Verifikasi `tests/login-success.test.ts` (login kredensial valid membuat sesi) lalu jalankan `npm run test -- tests/login-success.test.ts`. (Autentikasi Email dan Password)
+- [ ] 9.9 Verifikasi `tests/login-fail.test.ts` (kredensial salah mengembalikan galat tanpa menyebut keberadaan akun) lalu jalankan `npm run test -- tests/login-fail.test.ts`. (Autentikasi Email dan Password)
+- [ ] 9.10 Verifikasi `tests/logout.test.ts` (sesi dicabut di penyimpanan sehingga cookie lama tidak berlaku); bila pengarahan ke `/login` dapat ditegakkan di lapis yang dapat diuji, sertakan di tes ini, jika tidak catat sebagai pengujian manual; jalankan `npm run test -- tests/logout.test.ts`. (Logout dan Pencabutan Sesi)
+- [ ] 9.11 Verifikasi `tests/session-no-refresh.test.ts` (sesi tidak diperpanjang saat dipakai) lalu jalankan `npm run test -- tests/session-no-refresh.test.ts`. (Autentikasi Email dan Password)
+- [ ] 9.12 Verifikasi `tests/session-max-age.test.ts` (`AUTH_SESSION_MAX_AGE` menentukan masa berlaku) lalu jalankan `npm run test -- tests/session-max-age.test.ts`. (Autentikasi Email dan Password)
+- [ ] 9.13 Verifikasi `tests/session-expired.test.ts` (sesi kedaluwarsa ditolak dengan memanipulasi kolom kedaluwarsa di database, tanpa menunggu) lalu jalankan `npm run test -- tests/session-expired.test.ts`. (Autentikasi Email dan Password)
+- [ ] 9.14 Verifikasi `tests/signup-disabled.test.ts` (endpoint sign-up ditolak) lalu jalankan `npm run test -- tests/signup-disabled.test.ts`. (Registrasi Publik Dinonaktifkan)
+- [ ] 9.15 Verifikasi tes statis `tests/no-signup-route.test.ts` (tidak ada berkas rute sign-up di `src/app`) lalu jalankan `npm run test -- tests/no-signup-route.test.ts`. (Registrasi Publik Dinonaktifkan)
+- [ ] 9.16 Verifikasi `tests/password-hash.test.ts` (password tersimpan sebagai hash, bukan teks biasa; login dengan password benar berhasil) lalu jalankan `npm run test -- tests/password-hash.test.ts`. (Kebijakan Password)
+- [ ] 9.17 Verifikasi `tests/cookie.test.ts` (atribut cookie sesuai V13, termasuk `Secure` pada instance dengan `NODE_ENV` production) lalu jalankan `npm run test -- tests/cookie.test.ts`. (Atribut Cookie Sesi)
+- [ ] 9.18 Verifikasi `tests/rate-limit-6th.test.ts` (permintaan ke-6 dalam jendela waktu diblokir) lalu jalankan `npm run test -- tests/rate-limit-6th.test.ts`. (Rate Limiting Login)
+- [ ] 9.19 Verifikasi `tests/rate-limit-counts-success.test.ts` (permintaan sign-in yang berhasil ikut dihitung terhadap batas) lalu jalankan `npm run test -- tests/rate-limit-counts-success.test.ts`. (Rate Limiting Login)
+- [ ] 9.20 Verifikasi `tests/rate-limit-reset.test.ts` (batas direset setelah jendela waktu lewat, dibuktikan lewat manipulasi data rate limit) lalu jalankan `npm run test -- tests/rate-limit-reset.test.ts`. (Rate Limiting Login)
+
+## 10. Proxy dan Helper
+
+- [ ] 10.1 [GERBANG] Verifikasi versi Next.js terpasang dan konvensi nama (proxy atau middleware) beserta lokasinya di dalam `src/` karena memakai `--src-dir` (berkas di root diabaikan Next.js secara diam-diam) dari dokumentasi online (cadangan: `node_modules` atau percobaan terukur); tulis sumbernya ke Hasil Verifikasi (V16); jika gagal, berhenti dan tanyakan user. (Proteksi Rute /admin dengan Proxy dan Helper)
+- [ ] 10.2 Buat berkas proxy di lokasi hasil V16 (`src/proxy.ts` atau `src/middleware.ts`) yang memeriksa cookie sesi dan mengalihkan pengunjung tanpa sesi ke `/login`; verifikasi `tests/proxy.test.ts` lalu jalankan `npm run test -- tests/proxy.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
+- [ ] 10.3 Verifikasi `tests/proxy-header-override.test.ts` (header `x-original-pathname` dari klien ditimpa proxy dengan pathname request sebenarnya) lalu jalankan `npm run test -- tests/proxy-header-override.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
+- [ ] 10.4 Verifikasi tes statis `tests/proxy-location.test.ts` (berkas proxy ada di lokasi yang dikenali dan mengekspor `config.matcher`) lalu jalankan `npm run test -- tests/proxy-location.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
+- [ ] 10.5 Verifikasi `tests/proxy-public.test.ts` (`/login` dan `/api/auth/*` tidak diblokir) lalu jalankan `npm run test -- tests/proxy-public.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
+- [ ] 10.6 Buat helper `requireAdminSession()` dan `getAdminSessionOrNull()` di `src/modules/auth/`; verifikasi `tests/helpers.test.ts` lalu jalankan `npm run test -- tests/helpers.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
+- [ ] 10.7 Verifikasi `tests/helpers-redirect.test.ts` (redirect membawa path asli menjadi `/login?redirect=/admin/settings`) lalu jalankan `npm run test -- tests/helpers-redirect.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
+- [ ] 10.8 Verifikasi `tests/helpers-stale.test.ts` (cookie valid tetapi sesi sudah dicabut ditolak) lalu jalankan `npm run test -- tests/helpers-stale.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
+- [ ] 10.9 Verifikasi `tests/server-action.test.ts` (Server Action tanpa sesi dialihkan ke `/login`) memakai berkas contoh di `tests/fixtures/`, lalu jalankan `npm run test -- tests/server-action.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
+- [ ] 10.10 Verifikasi `tests/route-401.test.ts` (Route Handler tanpa sesi mengembalikan 401) memakai berkas contoh di `tests/fixtures/`, lalu jalankan `npm run test -- tests/route-401.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
+- [ ] 10.11 Perbarui halaman login (saat membaca parameter redirect), helper `requireAdminSession` (saat membuat parameter), dan proxy (saat membuat parameter) agar memakai `resolveSafeRedirect` dari 8.1; verifikasi `tests/redirect-usage.test.ts` (halaman login memakai `resolveSafeRedirect()`) lalu jalankan `npm run test -- tests/redirect-usage.test.ts`. (Proteksi Open Redirect)
+
+## 11. Seed
+
+- [ ] 11.1 [GERBANG] Verifikasi prompt password `@inquirer/prompts` (opsi `mask`) dari dokumentasi online (cadangan: `node_modules`); tulis sumbernya ke Hasil Verifikasi (V15); jika gagal, berhenti dan tanyakan user. (Seed Admin Pertama)
+- [ ] 11.2 Buat fungsi murni `describeDatabaseTarget(url)` di `src/modules/auth/` yang hanya mengembalikan host dan nama database tanpa password; verifikasi `npm run typecheck` lulus. (Seed Admin Pertama)
+- [ ] 11.3 Verifikasi `tests/describe-db-target.test.ts` (host dan nama database benar serta password tidak pernah muncul di keluaran) lalu jalankan `npm run test -- tests/describe-db-target.test.ts`. (Seed Admin Pertama)
+- [ ] 11.4 Verifikasi `tests/create-first-admin-existing.test.ts` (fungsi murni `createFirstAdmin` menolak bila tabel `user` sudah berisi baris) lalu jalankan `npm run test -- tests/create-first-admin-existing.test.ts`. (Seed Admin Pertama)
+- [ ] 11.5 Verifikasi `tests/create-first-admin-short-password.test.ts` (fungsi murni `createFirstAdmin` menolak password kurang dari 12 karakter) lalu jalankan `npm run test -- tests/create-first-admin-short-password.test.ts`. (Kebijakan Password)
+- [ ] 11.6 Buat `scripts/seed-admin.ts` (memuat `load-env`, memakai `createFirstAdmin` dan `describeDatabaseTarget`, memakai prompt V15); verifikasi melalui tes murni 11.3–11.5 dan `npm run typecheck` lulus (bukan hanya typecheck). (Seed Admin Pertama)
+- [ ] 11.7 Verifikasi `tests/seed-cancel.test.ts` (pembatalan tidak membuat akun) lalu jalankan `npm run test -- tests/seed-cancel.test.ts`. (Seed Admin Pertama)
+- [ ] 11.8 Verifikasi `tests/seed-login.test.ts` (admin yang dibuat dapat login dan memiliki akses Admin) lalu jalankan `npm run test -- tests/seed-login.test.ts`. (Satu Role Operasional)
+- [ ] 11.9 [LANGKAH MANUAL] Minta user menjalankan skrip seed secara interaktif dan melaporkan hasilnya (admin dibuat atau dibatalkan). Agen berhenti dan menunggu laporan user. (Seed Admin Pertama)
+
+## 12. Tes Statis Penegakan
+
+- [ ] 12.1 Buat pemindai statis yang menerima direktori akar sebagai parameter; verifikasi `tests/static-scanner.test.ts` memakai fixture `tests/fixtures/static/good` dan `tests/fixtures/static/bad` lalu dijalankan terhadap `src/` (`npm run test -- tests/static-scanner.test.ts`). (Penegakan Pemanggilan Helper)
+- [ ] 12.2 Verifikasi `tests/module-boundary.test.ts` (modul di `src/modules` tidak mengimpor dari `src/app`) memakai fixture lalu jalankan `npm run test -- tests/module-boundary.test.ts`. (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [ ] 12.3 Verifikasi `tests/tsconfig-strict.test.ts` (berkas `tsconfig.json` memuat `"strict": true`) lalu jalankan `npm run test -- tests/tsconfig-strict.test.ts`. (Aplikasi Next.js App Router dengan TypeScript Strict)
+
+## 13. Verifikasi Akhir
+
+- [ ] 13.1 Jalankan `npm run lint`; verifikasi tanpa galat. (Skrip NPM Tersedia)
+- [ ] 13.2 Jalankan `npm run typecheck`; verifikasi tanpa galat. (Skrip NPM Tersedia)
+- [ ] 13.3 Jalankan `npm run build`; verifikasi build berhasil. (Skrip NPM Tersedia)
+- [ ] 13.4 Jalankan `npm run test`; verifikasi seluruh tes lulus terhadap PostgreSQL asli. (Skrip NPM Tersedia)
+- [ ] 13.5 Tulis README yang memuat: prasyarat (Node, npm, psql), pembuatan role dan dua database (perintah psql dengan placeholder password), salin `.env.example` ke `.env.local` beserta cara membuat `BETTER_AUTH_SECRET` (`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`), `npm run db:generate` (hanya saat skema berubah), `npm run db:migrate`, seed (`npx tsx scripts/seed-admin.ts`), dan `npm run dev`. Verifikasi setiap perintah yang tidak membutuhkan rahasia dapat dijalankan apa adanya; perintah yang membutuhkan rahasia diverifikasi user. (prasyarat)
+- [ ] 13.6 Jalankan `openspec validate foundation-auth`; verifikasi tanpa peringatan. (prasyarat)
+- [ ] 13.7 Verifikasi `git ls-files` tidak melacak berkas `.env*` selain `.env.example`. (Git Ignore untuk Environment Files)
+
+## Hasil Verifikasi
+
+| Kode | Verifikasi | Sumber | Hasil |
+| --- | --- | --- | --- |
+| V1 | Flag non-interaktif `create-next-app` |  |  |
+| V2 | Alias `@` pada Vitest dan path `tsconfig` pada `tsx` |  |  |
+| V3 | Opsi eksekusi serial Vitest |  |  |
+| V4 | Letak dan nama tabel migrasi Drizzle |  |  |
+| V5 | `__dirname`/`import.meta.url` di `vitest.config.ts` ESM |  |  |
+| V6 | Perintah CLI generate skema Better Auth (cara CLI memuat konfigurasi/environment; kebutuhan skema pada instance `db`) |  |  |
+| V7 | Format kunci `customRules` rate limit |  |  |
+| V8 | Header IP tepercaya Vercel (tidak menghentikan apply) |  |  |
+| V9 | Cara Better Auth melaporkan selisih skema |  |  |
+| V10 | Client SDK Better Auth (`createAuthClient`) |  |  |
+| V11 | Nama dan prefiks cookie sesi serta `getSessionCookie` |  |  |
+| V12 | Kebutuhan header `Origin` pada route handler (ditentukan dari percobaan login pertama) |  |  |
+| V13 | Atribut cookie (`httpOnly`, `SameSite`) |  |  |
+| V14 | Bentuk argumen `signUpEmail` (termasuk `name`) |  |  |
+| V15 | Prompt password `@inquirer/prompts` (opsi `mask`) |  |  |
+| V16 | Versi Next.js dan lokasi proxy/middleware di `src/` |  |  |
+| V17 | Plugin Vite React dan environment `jsdom` per berkas tes (tambahkan devDependency bila disyaratkan) |  |  |

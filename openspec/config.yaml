@@ -65,6 +65,8 @@ operations:
       - "Jika ada ambiguitas atau konflik dengan register atau TDR, berhenti dan tanyakan. Jangan menebak."
       - "Jangan menyatakan tugas selesai sebelum menjalankan tes atau perintah verifikasinya. Laporkan output apa adanya, termasuk kegagalan."
       - "Jangan mengubah folder docs/ kecuali diminta. Jangan meng-commit secret atau file .env."
+      - "Jangan membaca, mencetak, atau menyalin isi .env.local atau secret lain ke output, log, atau pesan commit."
+      - "Jika dokumentasi online tidak dapat diakses, verifikasi gerbang lewat --help, tipe paket di node_modules, atau percobaan terukur, dan tulis sumbernya."
   archive:
     guidance:
       - "Ringkas hasil change dan daftarkan pertanyaan terbuka yang masih tersisa."

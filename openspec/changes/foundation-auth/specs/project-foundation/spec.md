@@ -24,6 +24,12 @@ Aplikasi SHALL menggunakan Next.js dengan App Router dan TypeScript dengan stric
 - **WHEN** kode mengandung implicit any atau referensi nullish yang tidak diperiksa
 - **THEN** TypeScript compiler menolak dengan galat
 
+#### Scenario: Modul tidak mengimpor dari app
+
+- **WHEN** modul di `src/modules` diperiksa
+- **THEN** modul tersebut tidak mengimpor dari `src/app`
+- **AND** arah ketergantungan ini diperiksa dengan tes statis
+
 ### Requirement: Koneksi PostgreSQL dengan Drizzle ORM
 
 Aplikasi SHALL terhubung ke PostgreSQL melalui Drizzle ORM dengan SATU instance `db` yang mendukung transaksi interaktif. Database configuration SHALL menggunakan environment variable `DATABASE_URL`.
@@ -75,6 +81,11 @@ Variabel environment berikut SHALL divalidasi dengan Zod melalui fungsi murni `p
 - **WHEN** `BETTER_AUTH_SECRET` kurang dari 32 karakter
 - **THEN** `parseEnv()` melempar galat dengan pesan minimal 32 karakter
 
+#### Scenario: Modul env menolak variabel tidak valid saat impor
+
+- **WHEN** modul env dimuat dengan variabel environment tidak valid
+- **THEN** modul menolak berjalan dengan galat saat impor
+
 ### Requirement: Berkas .env.example Tanpa Secret
 
 Proyek SHALL menyediakan `.env.example` yang berisi semua variabel environment yang diperlukan dengan nilai placeholder. Berkas ini SHALL NOT berisi secret atau nilai produksi.
@@ -116,8 +127,9 @@ Tool eksternal (migrasi, seed, tes) SHALL memuat `.env.local` dengan path ekspli
 
 #### Scenario: Vitest membaca environment
 
-- **WHEN** menjalankan tes
-- **THEN** koneksi menggunakan `DATABASE_URL` dan `TEST_DATABASE_URL` dari `.env.local`
+- **WHEN** tes dijalankan
+- **THEN** Vitest memuat `.env.local` lalu menggantikan `DATABASE_URL` untuk proses uji dengan nilai `TEST_DATABASE_URL`
+- **AND** seluruh koneksi aplikasi di bawah tes menuju database uji
 
 #### Scenario: Seed script membaca environment
 
@@ -165,6 +177,14 @@ Semua tabel Better Auth, termasuk tabel `rateLimit`, SHALL dibuat HANYA dari mig
 
 - **WHEN** aplikasi Better Auth diinisialisasi di environment test
 - **THEN** Better Auth tidak melaporkan selisih skema
+
+#### Scenario: Database tanpa migrasi tidak membuat tabel otomatis
+
+**GERBANG:** Verifikasi bagaimana selisih skema dilaporkan (log atau galat) agar dapat diperiksa tes.
+
+- **WHEN** aplikasi dijalankan pada database tanpa migrasi
+- **THEN** aplikasi tidak membuat tabel Better Auth sendiri
+- **AND** aplikasi gagal atau melaporkan selisih skema
 
 ### Requirement: Database Uji Terpisah
 
@@ -230,6 +250,8 @@ Migrasi SHALL diterapkan ke database test sebelum tes berjalan. Pembersihan anta
 - **THEN** semua tabel aplikasi dikosongkan dengan TRUNCATE CASCADE
 
 #### Scenario: Tabel migrasi tidak dibersihkan
+
+**GERBANG:** Verifikasi letak dan nama tabel migrasi (lihat bagian Database Test di design.md).
 
 - **WHEN** pembersihan dijalankan
 - **THEN** tabel migrasi Drizzle tidak di-truncate
