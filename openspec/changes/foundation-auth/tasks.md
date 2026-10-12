@@ -2,18 +2,18 @@
 
 ## 1. Prasyarat
 
-- [ ] 1.1 Verifikasi prasyarat tool tersedia dengan menjalankan `node -v`, `npm -v`, `git --version`, dan `psql --version` di PowerShell; jika salah satu tidak ada, berhenti dan tanyakan user. (prasyarat)
-- [ ] 1.2 [LANGKAH MANUAL] Minta user membuat role dan dua database dengan menjalankan `psql -U postgres` lalu perintah `CREATE ROLE app_user WITH LOGIN PASSWORD '<isi-sendiri>';`, `CREATE DATABASE venue_booking OWNER app_user;`, dan `CREATE DATABASE venue_booking_test OWNER app_user;` (placeholder password diisi sendiri oleh user). Agen berhenti sampai user mengonfirmasi. (prasyarat)
+- [x] 1.1 Verifikasi prasyarat tool tersedia dengan menjalankan `node -v`, `npm -v`, `git --version`, dan `psql --version` di PowerShell; jika salah satu tidak ada, berhenti dan tanyakan user. (prasyarat)
+- [x] 1.2 [LANGKAH MANUAL] Minta user membuat role dan dua database dengan menjalankan `psql -U postgres` lalu perintah `CREATE ROLE app_user WITH LOGIN PASSWORD '<isi-sendiri>';`, `CREATE DATABASE venue_booking OWNER app_user;`, dan `CREATE DATABASE venue_booking_test OWNER app_user;` (placeholder password diisi sendiri oleh user). Agen berhenti sampai user mengonfirmasi. (prasyarat)
 
 ## 2. Scaffold Proyek
 
-- [ ] 2.1 [GERBANG] Verifikasi flag non-interaktif `npx create-next-app` dari dokumentasi online Next.js CLI (cadangan bila tidak dapat diakses: `npx create-next-app --help`); tulis flag final dan sumbernya ke Hasil Verifikasi (V1); jika gagal, berhenti dan tanyakan user. (Aplikasi Next.js App Router dengan TypeScript Strict)
-- [ ] 2.2 Jalankan `npx create-next-app@latest next-app` di folder sementara di luar repo dengan flag V1; verifikasi folder `next-app` terbuat tanpa prompt interaktif (`Get-ChildItem next-app`). (Aplikasi Next.js App Router dengan TypeScript Strict)
-- [ ] 2.3 Pindahkan `package.json`, `package-lock.json`, `tsconfig.json`, konfigurasi Next.js, `src/`, `public/`, konfigurasi ESLint, dan berkas CSS/Tailwind ke root repo, lalu gabungkan `.gitignore`; verifikasi berkas-berkas tersebut ada di root (`Get-ChildItem`). (Aplikasi Next.js App Router dengan TypeScript Strict)
-- [ ] 2.4 Ganti `name` di `package.json` menjadi `venue-booking-system`; verifikasi `Get-Content package.json | Select-String "venue-booking-system"`. (Aplikasi Next.js App Router dengan TypeScript Strict)
-- [ ] 2.5 Hapus folder sementara `next-app`; verifikasi folder tidak ada lagi (`Get-ChildItem`). (Aplikasi Next.js App Router dengan TypeScript Strict)
-- [ ] 2.6 Jalankan `npm install` di root repo; verifikasi selesai tanpa galat. (Aplikasi Next.js App Router dengan TypeScript Strict)
-- [ ] 2.7 Jalankan `npm run build`; verifikasi build Next.js berhasil. (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [x] 2.1 [GERBANG] Verifikasi flag non-interaktif `npx create-next-app` dari dokumentasi online Next.js CLI (cadangan bila tidak dapat diakses: `npx create-next-app --help`); tulis flag final dan sumbernya ke Hasil Verifikasi (V1); jika gagal, berhenti dan tanyakan user. (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [x] 2.2 Jalankan `npx create-next-app@latest next-app` di folder sementara di luar repo dengan flag V1; verifikasi folder `next-app` terbuat tanpa prompt interaktif (`Get-ChildItem next-app`). (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [x] 2.3 Pindahkan `package.json`, `package-lock.json`, `tsconfig.json`, konfigurasi Next.js, `src/`, `public/`, konfigurasi ESLint, dan berkas CSS/Tailwind ke root repo, lalu gabungkan `.gitignore`; verifikasi berkas-berkas tersebut ada di root (`Get-ChildItem`). (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [x] 2.4 Ganti `name` di `package.json` menjadi `venue-booking-system`; verifikasi `Get-Content package.json | Select-String "venue-booking-system"`. (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [x] 2.5 Hapus folder sementara `next-app`; verifikasi folder tidak ada lagi (`Get-ChildItem`). (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [x] 2.6 Jalankan `npm install` di root repo; verifikasi selesai tanpa galat. (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [x] 2.7 Jalankan `npm run build`; verifikasi build Next.js berhasil. (Aplikasi Next.js App Router dengan TypeScript Strict)
 
 ## 3. Dependensi
 
@@ -148,7 +148,7 @@
 
 | Kode | Verifikasi | Sumber | Hasil |
 | --- | --- | --- | --- |
-| V1 | Flag non-interaktif `create-next-app` |  |  |
+| V1 | Flag non-interaktif `create-next-app` | `https://nextjs.org/docs/app/api-reference/cli/create-next-app` (v16.4.0); `npx create-next-app@latest --help`; definisi flag di `C:/Users/Lenovo/AppData/Local/npm-cache/_npx/cc2145a2fe1558fa/node_modules/create-next-app/dist/index.js` | Final: `--typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --use-npm --no-react-compiler --no-cache-components --no-agents-md --no-agent-feedback --disable-git`. Dokumentasi menyebut semua opsi ini; negasi `--no-*` untuk react-compiler, cache-components, agents-md, dan agent-feedback dikonfirmasi ada di sumber paket sehingga seluruh prompt tertutup (non-interaktif). `--disable-git` mencegah repo git bersarang di folder sementara. |
 | V2 | Alias `@` pada Vitest dan path `tsconfig` pada `tsx` |  |  |
 | V3 | Opsi eksekusi serial Vitest |  |  |
 | V4 | Letak dan nama tabel migrasi Drizzle |  |  |
