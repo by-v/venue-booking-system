@@ -4,4 +4,5 @@ import { resolve } from "path";
 config({
   path: resolve(process.cwd(), ".env.local"),
   override: false,
+  quiet: true,
 });
