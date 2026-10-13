@@ -50,9 +50,9 @@
 
 ## 6. Database
 
-- [ ] 6.1 Verifikasi tes koneksi, commit, dan rollback untuk `src/lib/db/index.ts` dengan menulis `tests/db.test.ts` lalu menjalankan `npm run test -- tests/db.test.ts`. (Koneksi PostgreSQL dengan Drizzle ORM)
-- [ ] 6.2 Buat `drizzle.config.ts` (dialect postgresql, schema `./src/lib/db/schema.ts`, out `./migrations`, url dari `env.DATABASE_URL`); verifikasi `npm run typecheck` lulus. (Migrasi Database)
-- [ ] 6.3 Buat `scripts/db-check.ts` yang memuat `load-env` lalu mencetak `SELECT current_database()`, dan tambahkan skrip npm `db:check`; verifikasi `npm run db:check` mencetak nama database (menggantikan tugas `psql "$DATABASE_URL"`). (Koneksi PostgreSQL dengan Drizzle ORM)
+- [x] 6.1 Verifikasi tes koneksi, commit, dan rollback untuk `src/lib/db/index.ts` dengan menulis `tests/db.test.ts` lalu menjalankan `npm run test -- tests/db.test.ts`. (Koneksi PostgreSQL dengan Drizzle ORM)
+- [x] 6.2 Buat `drizzle.config.ts` (dialect postgresql, schema `./src/lib/db/schema.ts`, out `./migrations`, url dari `env.DATABASE_URL`); verifikasi `npm run typecheck` lulus. (Migrasi Database)
+- [x] 6.3 Buat `scripts/db-check.ts` yang memuat `load-env` lalu mencetak `SELECT current_database()`, dan tambahkan skrip npm `db:check`; verifikasi `npm run db:check` mencetak nama database (menggantikan tugas `psql "$DATABASE_URL"`). (Koneksi PostgreSQL dengan Drizzle ORM)
 
 ## 7. Better Auth dan Skema
 
