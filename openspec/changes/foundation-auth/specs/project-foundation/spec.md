@@ -55,11 +55,11 @@ Aplikasi SHALL terhubung ke PostgreSQL melalui Drizzle ORM dengan SATU instance 
 
 Variabel environment berikut SHALL divalidasi dengan Zod melalui fungsi murni `parseEnv(source)`:
 - `DATABASE_URL`: connection string PostgreSQL (wajib)
-- `BETTER_AUTH_SECRET`: minimal 32 karakter, tanpa nilai default (wajib)
+- `BETTER_AUTH_SECRET`: minimal 32 karakter, tanpa nilai default (wajib); nilai placeholder dari `.env.example` (mengandung kata `CHANGE_ME`, tanpa membedakan huruf besar atau kecil) SHALL DITOLAK
 - `BETTER_AUTH_URL`: base URL untuk Better Auth (wajib)
 - `AUTH_SESSION_MAX_AGE`: opsional, default 604800 detik
 
-**Jejak:** TDR D4
+**Jejak:** TDR D4, NFR-SEC-07 (USULAN)
 
 #### Scenario: Semua variabel valid
 
@@ -80,6 +80,11 @@ Variabel environment berikut SHALL divalidasi dengan Zod melalui fungsi murni `p
 
 - **WHEN** `BETTER_AUTH_SECRET` kurang dari 32 karakter
 - **THEN** `parseEnv()` melempar galat dengan pesan minimal 32 karakter
+
+#### Scenario: BETTER_AUTH_SECRET masih placeholder
+
+- **WHEN** `BETTER_AUTH_SECRET` berisi nilai placeholder dari `.env.example`
+- **THEN** `parseEnv()` melempar galat yang menyebut bahwa secret belum diganti
 
 #### Scenario: Modul env menolak variabel tidak valid saat impor
 
