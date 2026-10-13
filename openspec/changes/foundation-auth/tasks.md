@@ -17,17 +17,17 @@
 
 ## 3. Dependensi
 
-- [ ] 3.1 Tambahkan dependensi `better-auth`, `drizzle-orm`, `drizzle-kit`, `pg`, `@types/pg`, `zod`, `dotenv`, `@inquirer/prompts`, `tsx`, `vitest`, `ts-morph`, `jsdom`, dan `@testing-library/react`; verifikasi `npm ls` menampilkan semuanya. (Koneksi PostgreSQL dengan Drizzle ORM)
-- [ ] 3.2 Tambahkan skrip npm `lint`, `typecheck`, `build`, `test`, `db:generate`, `db:migrate`, dan `db:check`; verifikasi `npm run` menampilkan semuanya tanpa galat. (Skrip NPM Tersedia)
+- [x] 3.1 Tambahkan dependensi `better-auth`, `drizzle-orm`, `drizzle-kit`, `pg`, `@types/pg`, `zod`, `dotenv`, `@inquirer/prompts`, `tsx`, `vitest`, `ts-morph`, `jsdom`, dan `@testing-library/react`; verifikasi `npm ls` menampilkan semuanya. (Koneksi PostgreSQL dengan Drizzle ORM)
+- [x] 3.2 Tambahkan skrip npm `lint`, `typecheck`, `build`, `test`, `db:generate`, `db:migrate`, dan `db:check`; verifikasi `npm run` menampilkan semuanya tanpa galat. (Skrip NPM Tersedia)
 
 ## 4. Modul Environment dan Database (kode saja)
 
-- [ ] 4.1 Buat `src/lib/env.ts` dengan fungsi murni `parseEnv(source)` dan `const env`; verifikasi `npm run typecheck` lulus (tes env ditunda ke grup 5). (Validasi Environment dengan Zod)
-- [ ] 4.2 Buat `src/lib/load-env.ts` (dotenv, path eksplisit `.env.local`, `override: false`); verifikasi `npm run typecheck` lulus (tes load-env ditunda ke grup 5). (Pemuatan .env.local oleh Tool)
-- [ ] 4.3 Buat `.env.example` dengan semua variabel (`DATABASE_URL`, `TEST_DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `AUTH_SESSION_MAX_AGE`) dan placeholder; verifikasi tidak memuat secret nyata dengan `Get-Content .env.example`. (Berkas .env.example Tanpa Secret)
-- [ ] 4.4 Perbarui `.gitignore` agar mengabaikan `.env*` kecuali `.env.example`; verifikasi `git check-ignore .env.local` mengabaikan berkas itu sedangkan `.env.example` tidak diabaikan. (Git Ignore untuk Environment Files)
-- [ ] 4.5 [LANGKAH MANUAL] Minta user menyalin `.env.example` ke `.env.local` dan mengisi nilainya, serta membuat `BETTER_AUTH_SECRET` sendiri dengan `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Agen TIDAK membaca atau mencetak `.env.local` maupun hasil secret. Agen berhenti dan menunggu konfirmasi user sebelum melanjutkan ke grup 5. (prasyarat)
-- [ ] 4.6 Buat `src/lib/db/index.ts` dengan satu instance `db` (Pool pg + drizzle) yang mendukung transaksi; verifikasi `npm run typecheck` lulus (tes koneksi, commit, dan rollback ditunda ke grup 6). (Koneksi PostgreSQL dengan Drizzle ORM)
+- [x] 4.1 Buat `src/lib/env.ts` dengan fungsi murni `parseEnv(source)` dan `const env`; verifikasi `npm run typecheck` lulus (tes env ditunda ke grup 5). (Validasi Environment dengan Zod)
+- [x] 4.2 Buat `src/lib/load-env.ts` (dotenv, path eksplisit `.env.local`, `override: false`); verifikasi `npm run typecheck` lulus (tes load-env ditunda ke grup 5). (Pemuatan .env.local oleh Tool)
+- [x] 4.3 Buat `.env.example` dengan semua variabel (`DATABASE_URL`, `TEST_DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `AUTH_SESSION_MAX_AGE`) dan placeholder; verifikasi tidak memuat secret nyata dengan `Get-Content .env.example`. (Berkas .env.example Tanpa Secret)
+- [x] 4.4 Perbarui `.gitignore` agar mengabaikan `.env*` kecuali `.env.example`; verifikasi `git check-ignore .env.local` mengabaikan berkas itu sedangkan `.env.example` tidak diabaikan. (Git Ignore untuk Environment Files)
+- [x] 4.5 [LANGKAH MANUAL] Minta user menyalin `.env.example` ke `.env.local` dan mengisi nilainya, serta membuat `BETTER_AUTH_SECRET` sendiri dengan `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. Agen TIDAK membaca atau mencetak `.env.local` maupun hasil secret. Agen berhenti dan menunggu konfirmasi user sebelum melanjutkan ke grup 5. (prasyarat)
+- [x] 4.6 Buat `src/lib/db/index.ts` dengan satu instance `db` (Pool pg + drizzle) yang mendukung transaksi; verifikasi `npm run typecheck` lulus (tes koneksi, commit, dan rollback ditunda ke grup 6). (Koneksi PostgreSQL dengan Drizzle ORM)
 
 ## 5. Harness Vitest
 
