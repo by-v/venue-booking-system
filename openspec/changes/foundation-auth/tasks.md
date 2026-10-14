@@ -105,7 +105,7 @@
 ## 10. Proxy dan Helper
 
 - [x] 10.1 [GERBANG] Verifikasi versi Next.js terpasang dan konvensi nama (proxy atau middleware) beserta lokasinya di dalam `src/` karena memakai `--src-dir` (berkas di root diabaikan Next.js secara diam-diam) dari dokumentasi online (cadangan: `node_modules` atau percobaan terukur); tulis sumbernya ke Hasil Verifikasi (V16); jika gagal, berhenti dan tanyakan user. (Proteksi Rute /admin dengan Proxy dan Helper)
-- [ ] 10.2 Buat berkas proxy di lokasi hasil V16 (`src/proxy.ts` atau `src/middleware.ts`) yang memeriksa cookie sesi dan mengalihkan pengunjung tanpa sesi ke `/login`; verifikasi `tests/proxy.test.ts` lalu jalankan `npm run test -- tests/proxy.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
+- [x] 10.2 Buat berkas proxy di lokasi hasil V16 (`src/proxy.ts` atau `src/middleware.ts`) yang memeriksa cookie sesi dan mengalihkan pengunjung tanpa sesi ke `/login`; verifikasi `tests/proxy.test.ts` lalu jalankan `npm run test -- tests/proxy.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
 - [ ] 10.3 Verifikasi `tests/proxy-header-override.test.ts` (header `x-original-pathname` dari klien ditimpa proxy dengan pathname request sebenarnya) lalu jalankan `npm run test -- tests/proxy-header-override.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
 - [ ] 10.4 Verifikasi tes statis `tests/proxy-location.test.ts` (berkas proxy ada di lokasi yang dikenali dan mengekspor `config.matcher`) lalu jalankan `npm run test -- tests/proxy-location.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
 - [ ] 10.5 Verifikasi `tests/proxy-public.test.ts` (`/login` dan `/api/auth/*` tidak diblokir) lalu jalankan `npm run test -- tests/proxy-public.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
