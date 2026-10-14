@@ -75,9 +75,9 @@
 
 ## 8. Redirect
 
-- [ ] 8.1 Buat `resolveSafeRedirect()` yang hanya menerima tujuan internal; verifikasi `tests/redirect-reject.test.ts` memakai SEMUA vektor di spec admin-auth (protokol eksternal, `https://evil.com/admin`, `//evil.com`, `/\evil.com`, `/%2F/evil.com`, karakter tab SEBENARNYA bukan string "\t", `/administrator`, `/admin/../login`, `/admin%2F..`, `/admin%5C..`, `/admin/%2e%2e/login`) lalu jalankan `npm run test -- tests/redirect-reject.test.ts`. (Proteksi Open Redirect)
-- [ ] 8.2 Verifikasi `tests/redirect-accept.test.ts` (`/admin` dan `/admin/settings` diterima) lalu jalankan `npm run test -- tests/redirect-accept.test.ts`. (Proteksi Open Redirect)
-- [ ] 8.3 Verifikasi `tests/redirect-fallback.test.ts` (parameter kosong atau tidak ada menghasilkan fallback `/admin`) lalu jalankan `npm run test -- tests/redirect-fallback.test.ts`. (Proteksi Open Redirect)
+- [x] 8.1 Buat `resolveSafeRedirect()` yang hanya menerima tujuan internal; verifikasi `tests/redirect-reject.test.ts` memakai SEMUA vektor di spec admin-auth (protokol eksternal, `https://evil.com/admin`, `//evil.com`, `/\evil.com`, `/%2F/evil.com`, karakter tab SEBENARNYA bukan string "\t", `/administrator`, `/admin/../login`, `/admin%2F..`, `/admin%5C..`, `/admin/%2e%2e/login`) lalu jalankan `npm run test -- tests/redirect-reject.test.ts`. (Proteksi Open Redirect)
+- [x] 8.2 Verifikasi `tests/redirect-accept.test.ts` (`/admin` dan `/admin/settings` diterima) lalu jalankan `npm run test -- tests/redirect-accept.test.ts`. (Proteksi Open Redirect)
+- [x] 8.3 Verifikasi `tests/redirect-fallback.test.ts` (parameter kosong atau tidak ada menghasilkan fallback `/admin`) lalu jalankan `npm run test -- tests/redirect-fallback.test.ts`. (Proteksi Open Redirect)
 
 ## 9. Route Handler dan Login
 
