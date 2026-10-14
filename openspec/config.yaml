@@ -14,7 +14,7 @@ context: |
   - Aturan berlabel FINAL dan FINAL-DEFAULT boleh dispesifikasikan.
   - Aturan berlabel PROVISIONAL boleh dispesifikasikan, tetapi requirement-nya harus diberi tanda PROVISIONAL.
   - Item berlabel TERBUKA (T-xx) TIDAK BOLEH dijadikan perilaku sistem. Catat sebagai pertanyaan terbuka, jangan menebak.
-  - Jangan mengubah dua dokumen di atas. Jika artefak bertentangan dengan dokumen itu, berhenti dan laporkan.
+  - Jangan mengubah dokumen di atas. Jika artefak bertentangan dengan dokumen itu, berhenti dan laporkan.
 
   Di luar scope tanpa persetujuan eksplisit: chatbot, fitur AI, SAW/rekomendasi venue,
   payment gateway, pembayaran otomatis, otomatisasi WhatsApp, multi-venue/marketplace,
@@ -31,8 +31,8 @@ context: |
   sebagai integer rupiah; data bisnis tidak dihapus (hanya status berubah); setiap perubahan
   status mencatat waktu, status lama, status baru, alasan, dan pelaku.
 
-  Kondisi repo: belum ada kode aplikasi sebelum change foundation-auth diterapkan.
-  Jangan mengasumsikan struktur folder atau modul yang belum ada.
+  Kondisi repo: aplikasi dibangun bertahap lewat change foundation-auth. Jangan mengasumsikan
+  struktur folder atau modul yang belum ada; periksa isi repo sebelum menulis kode.
 
 rules:
   proposal:
@@ -51,7 +51,7 @@ rules:
     - "Tempatkan aturan bisnis di modul domain terpisah dari UI dan route handler."
     - "Catat asumsi, alternatif yang ditolak, dan pertanyaan terbuka."
     - "Jangan mengunci nomor versi paket dari ingatan. Versi diverifikasi saat pemasangan."
-    - "Setiap nama fungsi, opsi konfigurasi, atau API pihak ketiga (Better Auth, Drizzle, Next.js) wajib dikutip dari dokumentasi atau tipe paket yang terpasang, dengan URL atau path sumbernya. Jika tidak bisa dikutip, tandai [BELUM TERVERIFIKASI] dan jangan menulisnya sebagai fakta atau memberi label 'Terverifikasi'."
+    - "Setiap nama fungsi, opsi konfigurasi, atau API pihak ketiga wajib dikutip dari dokumentasi atau tipe paket yang terpasang, dengan URL atau path sumbernya. Jika tidak bisa dikutip, tandai [BELUM TERVERIFIKASI] dan jangan menulisnya sebagai fakta."
   tasks:
     - "Pecah menjadi tugas kecil (sekitar maksimal 2 jam), masing-masing merujuk requirement."
     - "Sertakan tugas pengujian untuk setiap requirement. Tes aturan bisnis memakai PostgreSQL asli, bukan mock."
@@ -61,12 +61,19 @@ rules:
 operations:
   apply:
     guidance:
-      - "Kerjakan hanya tugas yang tercantum di tasks.md. Jangan menambah fitur."
-      - "Jika ada ambiguitas atau konflik dengan register atau TDR, berhenti dan tanyakan. Jangan menebak."
-      - "Jangan menyatakan tugas selesai sebelum menjalankan tes atau perintah verifikasinya. Laporkan output apa adanya, termasuk kegagalan."
-      - "Jangan mengubah folder docs/ kecuali diminta. Jangan meng-commit secret atau file .env."
-      - "Jangan membaca, mencetak, atau menyalin isi .env.local atau secret lain ke output, log, atau pesan commit."
-      - "Jika dokumentasi online tidak dapat diakses, verifikasi gerbang lewat --help, tipe paket di node_modules, atau percobaan terukur, dan tulis sumbernya."
+      - "Ruang lingkup: kerjakan hanya grup tugas yang diminta user pada prompt, lalu berhenti setelah tugas terakhir grup itu walaupun masih ada tugas pending. Jangan menambah fitur, dependensi, atau berkas di luar tugas, spec, dan design; jika perlu, berhenti dan tanyakan."
+      - "Jika ada ambiguitas atau konflik dengan register, TDR, spec, atau design, berhenti dan tanyakan. Jangan menebak."
+      - "Tandai tugas [x] hanya setelah perilaku yang ditentukan terpenuhi DAN perintah verifikasinya benar-benar dijalankan dan lulus. Laporkan output apa adanya, termasuk kegagalan. Jangan menulis 'seharusnya lulus'."
+      - "Jangan melemahkan tes: jangan menghapus atau mengubah assertion agar lulus, jangan memakai skip, only, atau todo. Perbaiki kodenya, atau berhenti dan laporkan bila spec atau tasks perlu diubah."
+      - "Rahasia: jangan membaca, mencetak, atau menyalin isi .env.local atau secret lain ke output, log, komentar, atau pesan commit, dan jangan menjalankan perintah yang menampilkannya."
+      - "Database: jangan menjalankan perintah tulis atau hapus (TRUNCATE, DROP, DELETE, INSERT) pada koneksi yang belum diverifikasi lewat SELECT current_database() berakhiran _test. Tes selalu memakai database uji. Satu-satunya penulisan ke database dev adalah migrasi lewat npm run db:migrate bila tugas memintanya. Jangan membuat akun atau data di database dev."
+      - "Gerbang verifikasi: isi tabel Hasil Verifikasi dengan sumber nyata (URL dokumentasi, path berkas di node_modules, atau perintah yang dijalankan) dan hasil yang diamati. Jika hasilnya konsisten dengan spec dan design, catat lalu lanjutkan. Berhenti hanya bila hasilnya bertentangan dengan spec atau design atau tidak dapat diverifikasi. Pengecualian: gerbang yang tertulis TIDAK MENGHENTIKAN APPLY cukup dicatat."
+      - "Jika dokumentasi online tidak dapat diakses, verifikasi lewat --help, tipe paket di node_modules, atau percobaan terukur, dan tulis sumbernya."
+      - "Git: jangan push dan jangan commit di cabang main atau master (periksa git branch --show-current lebih dulu; jika main atau master, berhenti). Setelah satu grup tugas selesai dan seluruh tes lulus, buat SATU commit lokal dengan pesan feat(foundation-auth): <ringkasan grup>. Jangan commit bila ada tes gagal. Jangan menjalankan git reset, clean, atau stash tanpa persetujuan user."
+      - "Jangan mengubah folder docs/ dan .opencode/ dan jangan menjalankan npm audit fix. Jangan menambah dependensi di luar yang disebut tugas; bila sebuah gerbang mensyaratkannya, berhenti dan tanyakan."
+      - "Semua perintah tes non-interaktif dan tidak berjalan dalam mode watch."
+      - "Penyimpangan kecil yang tidak mengubah perilaku spec boleh dikerjakan dan WAJIB dicatat di laporan akhir bagian Penyimpangan beserta alasannya."
+      - "Laporan akhir singkat (maksimal sekitar 40 baris): tugas yang selesai, berkas dibuat atau diubah, penyimpangan, isian Hasil Verifikasi yang baru (satu baris per kode), dan hal yang butuh keputusan user. Jangan menempelkan keluaran panjang; user mengumpulkan bukti dengan skrip sendiri."
   archive:
     guidance:
       - "Ringkas hasil change dan daftarkan pertanyaan terbuka yang masih tersisa."
