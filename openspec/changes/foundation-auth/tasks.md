@@ -82,7 +82,7 @@
 ## 9. Route Handler dan Login
 
 - [x] 9.1 [GERBANG] Verifikasi client SDK Better Auth (`createAuthClient`) dari dokumentasi online (cadangan: `node_modules`); tulis sumbernya ke Hasil Verifikasi (V10); jika gagal, berhenti dan tanyakan user. (Halaman Login dan Dashboard)
-- [ ] 9.2 Buat route handler `src/app/api/auth/[...all]/route.ts` dengan `toNextJsHandler`, lalu jalankan percobaan login pertama untuk menentukan kebutuhan header `Origin` dan tulis hasilnya ke Hasil Verifikasi (V12) SEBELUM menulis `tests/auth-route.test.ts`; setelah itu jalankan `npm run test -- tests/auth-route.test.ts`. (Autentikasi Email dan Password)
+- [x] 9.2 Buat route handler `src/app/api/auth/[...all]/route.ts` dengan `toNextJsHandler`, lalu jalankan percobaan login pertama untuk menentukan kebutuhan header `Origin` dan tulis hasilnya ke Hasil Verifikasi (V12) SEBELUM menulis `tests/auth-route.test.ts`; setelah itu jalankan `npm run test -- tests/auth-route.test.ts`. (Autentikasi Email dan Password)
 - [ ] 9.3 [GERBANG] Verifikasi atribut cookie (`httpOnly`, `SameSite`) dari respons login nyata maupun dokumentasi online; tulis sumbernya ke Hasil Verifikasi (V13); jika gagal, berhenti dan tanyakan user. (Atribut Cookie Sesi)
 - [ ] 9.4 [GERBANG] Verifikasi nama dan prefiks cookie sesi serta helper `getSessionCookie` dari dokumentasi online (cadangan: `node_modules`); tulis sumbernya ke Hasil Verifikasi (V11); jika gagal, berhenti dan tanyakan user. (Proteksi Rute /admin dengan Proxy dan Helper)
 - [ ] 9.5 [GERBANG] Verifikasi kebutuhan plugin Vite untuk React (mis. `@vitejs/plugin-react`) dan environment `jsdom` per berkas tes dari dokumentasi online (cadangan: `node_modules` atau percobaan terukur); bila V17 mensyaratkan devDependency, tambahkan ke `package.json` dan catat di Hasil Verifikasi; tulis sumbernya ke V17; jika gagal, berhenti dan tanyakan user. (Halaman Login dan Dashboard)
@@ -100,7 +100,7 @@
 - [ ] 9.17 Verifikasi `tests/cookie.test.ts` (atribut cookie sesuai V13, termasuk `Secure` pada instance dengan `NODE_ENV` production) lalu jalankan `npm run test -- tests/cookie.test.ts`. (Atribut Cookie Sesi)
 - [ ] 9.18 Verifikasi `tests/rate-limit-6th.test.ts` (permintaan ke-6 dalam jendela waktu diblokir) lalu jalankan `npm run test -- tests/rate-limit-6th.test.ts`. (Rate Limiting Login)
 - [ ] 9.19 Verifikasi `tests/rate-limit-counts-success.test.ts` (permintaan sign-in yang berhasil ikut dihitung terhadap batas) lalu jalankan `npm run test -- tests/rate-limit-counts-success.test.ts`. (Rate Limiting Login)
-- [ ] 9.20 Verifikasi `tests/rate-limit-reset.test.ts` (batas direset setelah jendela waktu lewat, dibuktikan lewat manipulasi data rate limit) lalu jalankan `npm run test -- tests/rate-limit-reset.test.ts`. (Rate Limiting Login)
+- [x] 9.20 Verifikasi `tests/rate-limit-reset.test.ts` (batas direset setelah jendela waktu lewat, dibuktikan lewat manipulasi data rate limit) lalu jalankan `npm run test -- tests/rate-limit-reset.test.ts`. (Rate Limiting Login)
 
 ## 10. Proxy dan Helper
 
