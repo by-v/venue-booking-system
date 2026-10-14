@@ -104,7 +104,7 @@
 
 ## 10. Proxy dan Helper
 
-- [ ] 10.1 [GERBANG] Verifikasi versi Next.js terpasang dan konvensi nama (proxy atau middleware) beserta lokasinya di dalam `src/` karena memakai `--src-dir` (berkas di root diabaikan Next.js secara diam-diam) dari dokumentasi online (cadangan: `node_modules` atau percobaan terukur); tulis sumbernya ke Hasil Verifikasi (V16); jika gagal, berhenti dan tanyakan user. (Proteksi Rute /admin dengan Proxy dan Helper)
+- [x] 10.1 [GERBANG] Verifikasi versi Next.js terpasang dan konvensi nama (proxy atau middleware) beserta lokasinya di dalam `src/` karena memakai `--src-dir` (berkas di root diabaikan Next.js secara diam-diam) dari dokumentasi online (cadangan: `node_modules` atau percobaan terukur); tulis sumbernya ke Hasil Verifikasi (V16); jika gagal, berhenti dan tanyakan user. (Proteksi Rute /admin dengan Proxy dan Helper)
 - [ ] 10.2 Buat berkas proxy di lokasi hasil V16 (`src/proxy.ts` atau `src/middleware.ts`) yang memeriksa cookie sesi dan mengalihkan pengunjung tanpa sesi ke `/login`; verifikasi `tests/proxy.test.ts` lalu jalankan `npm run test -- tests/proxy.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
 - [ ] 10.3 Verifikasi `tests/proxy-header-override.test.ts` (header `x-original-pathname` dari klien ditimpa proxy dengan pathname request sebenarnya) lalu jalankan `npm run test -- tests/proxy-header-override.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
 - [ ] 10.4 Verifikasi tes statis `tests/proxy-location.test.ts` (berkas proxy ada di lokasi yang dikenali dan mengekspor `config.matcher`) lalu jalankan `npm run test -- tests/proxy-location.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
@@ -113,8 +113,8 @@
 - [ ] 10.7 Verifikasi `tests/helpers-redirect.test.ts` (redirect membawa path asli menjadi `/login?redirect=/admin/settings`) lalu jalankan `npm run test -- tests/helpers-redirect.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
 - [ ] 10.8 Verifikasi `tests/helpers-stale.test.ts` (cookie valid tetapi sesi sudah dicabut ditolak) lalu jalankan `npm run test -- tests/helpers-stale.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
 - [ ] 10.9 Verifikasi `tests/server-action.test.ts` (Server Action tanpa sesi dialihkan ke `/login`) memakai berkas contoh di `tests/fixtures/`, lalu jalankan `npm run test -- tests/server-action.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
-- [ ] 10.10 Verifikasi `tests/route-401.test.ts` (Route Handler tanpa sesi mengembalikan 401) memakai berkas contoh di `tests/fixtures/`, lalu jalankan `npm run test -- tests/route-401.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
-- [ ] 10.11 Perbarui halaman login (saat membaca parameter redirect), helper `requireAdminSession` (saat membuat parameter), dan proxy (saat membuat parameter) agar memakai `resolveSafeRedirect` dari 8.1; verifikasi `tests/redirect-usage.test.ts` (halaman login memakai `resolveSafeRedirect()`) lalu jalankan `npm run test -- tests/redirect-usage.test.ts`. (Proteksi Open Redirect)
+- [x] 10.10 Verifikasi `tests/route-401.test.ts` (Route Handler tanpa sesi mengembalikan 401) memakai berkas contoh di `tests/fixtures/`, lalu jalankan `npm run test -- tests/route-401.test.ts`. (Proteksi Rute /admin dengan Proxy dan Helper)
+- [x] 10.11 Perbarui halaman login (saat membaca parameter redirect), helper `requireAdminSession` (saat membuat parameter), dan proxy (saat membuat parameter) agar memakai `resolveSafeRedirect` dari 8.1; verifikasi `tests/redirect-usage.test.ts` (halaman login memakai `resolveSafeRedirect()`) lalu jalankan `npm run test -- tests/redirect-usage.test.ts`. (Proteksi Open Redirect)
 
 ## 11. Seed
 
