@@ -1,1 +1,1 @@
-export const TEST_DB_ADVISORY_LOCK_KEY = 123456789n; // Bilangan bulat tetap
+export const TEST_DB_ADVISORY_LOCK_KEY = BigInt(123456789);
