@@ -118,7 +118,7 @@
 
 ## 11. Seed
 
-- [ ] 11.1 [GERBANG] Verifikasi prompt password `@inquirer/prompts` (opsi `mask`) dari dokumentasi online (cadangan: `node_modules`); tulis sumbernya ke Hasil Verifikasi (V15); jika gagal, berhenti dan tanyakan user. (Seed Admin Pertama)
+- [x] 11.1 [GERBANG] Verifikasi prompt password `@inquirer/prompts` (opsi `mask`) dari dokumentasi online (cadangan: `node_modules`); tulis sumbernya ke Hasil Verifikasi (V15); jika gagal, berhenti dan tanyakan user. (Seed Admin Pertama)
 - [ ] 11.2 Buat fungsi murni `describeDatabaseTarget(url)` di `src/modules/auth/` yang hanya mengembalikan host dan nama database tanpa password; verifikasi `npm run typecheck` lulus. (Seed Admin Pertama)
 - [ ] 11.3 Verifikasi `tests/describe-db-target.test.ts` (host dan nama database benar serta password tidak pernah muncul di keluaran) lalu jalankan `npm run test -- tests/describe-db-target.test.ts`. (Seed Admin Pertama)
 - [ ] 11.4 Verifikasi `tests/create-first-admin-existing.test.ts` (fungsi murni `createFirstAdmin` menolak bila tabel `user` sudah berisi baris) lalu jalankan `npm run test -- tests/create-first-admin-existing.test.ts`. (Seed Admin Pertama)
@@ -162,6 +162,6 @@
 | V12 | Kebutuhan header `Origin` pada route handler (ditentukan dari percobaan login pertama) |  |  |
 | V13 | Atribut cookie (`httpOnly`, `SameSite`) |  |  |
 | V14 | Bentuk argumen `signUpEmail` (termasuk `name`) | `node_modules/better-auth/dist/api/routes/sign-up.mjs` baris 15-21 (`const signUpEmailBodySchema = z.object({ name: z.string(), email: z.email(), password: z.string().nonempty(), image: z.string().optional(), callbackURL: z.string().optional(), rememberMe: z.boolean().optional() }).and(z.record(z.string(), z.any()))`). | `signUpEmail` menerima `{ name: string (WAJIB), email: string, password: string, image?, callbackURL?, rememberMe? }`. `name` wajib, dipakai `createFirstAdmin` (grup 11) dan helper `create-user` (7.13). |
-| V15 | Prompt password `@inquirer/prompts` (opsi `mask`) |  |  |
+| V15 | Prompt password `@inquirer/prompts` (opsi `mask`) | node_modules/@inquirer/prompts/dist/password.js | Terverifikasi: fungsi `password` tersedia. |
 | V16 | Versi Next.js dan lokasi proxy/middleware di `src/` |  |  |
 | V17 | Plugin Vite React dan environment `jsdom` per berkas tes (tambahkan devDependency bila disyaratkan) | Vitest 4 + jsdom: `environment: "jsdom"` per berkas (directive `// @vitest-environment jsdom`) sesuai kebutuhan tes React; tidak memerlukan `@vitejs/plugin-react` untuk setup ini (Next.js sudah memiliki React). jsdom@30.1.2 dan @testing-library/react@16.3.3 tersedia. | Terverifikasi - sesuai dengan setup tes yang akan memakai jsdom via directive. |
