@@ -130,9 +130,9 @@
 
 ## 12. Tes Statis Penegakan
 
-- [ ] 12.1 Buat pemindai statis yang menerima direktori akar sebagai parameter; verifikasi `tests/static-scanner.test.ts` memakai fixture `tests/fixtures/static/good` dan `tests/fixtures/static/bad` lalu dijalankan terhadap `src/` (`npm run test -- tests/static-scanner.test.ts`). (Penegakan Pemanggilan Helper)
-- [ ] 12.2 Verifikasi `tests/module-boundary.test.ts` (modul di `src/modules` tidak mengimpor dari `src/app`) memakai fixture lalu jalankan `npm run test -- tests/module-boundary.test.ts`. (Aplikasi Next.js App Router dengan TypeScript Strict)
-- [ ] 12.3 Verifikasi `tests/tsconfig-strict.test.ts` (berkas `tsconfig.json` memuat `"strict": true`) lalu jalankan `npm run test -- tests/tsconfig-strict.test.ts`. (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [x] 12.1 Buat pemindai statis yang menerima direktori akar sebagai parameter; verifikasi `tests/static-scanner.test.ts` memakai fixture `tests/fixtures/static/good` dan `tests/fixtures/static/bad` lalu dijalankan terhadap `src/` (`npm run test -- tests/static-scanner.test.ts`). (Penegakan Pemanggilan Helper)
+- [x] 12.2 Verifikasi `tests/module-boundary.test.ts` (modul di `src/modules` tidak mengimpor dari `src/app`) memakai fixture lalu jalankan `npm run test -- tests/module-boundary.test.ts`. (Aplikasi Next.js App Router dengan TypeScript Strict)
+- [x] 12.3 Verifikasi `tests/tsconfig-strict.test.ts` (berkas `tsconfig.json` memuat `"strict": true`) lalu jalankan `npm run test -- tests/tsconfig-strict.test.ts`. (Aplikasi Next.js App Router dengan TypeScript Strict)
 
 ## 13. Verifikasi Akhir
 

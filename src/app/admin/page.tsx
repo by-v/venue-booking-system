@@ -1,3 +1,7 @@
-export default function AdminPage() {
+import { requireAdminSession } from "@/modules/auth";
+
+export default async function AdminPage() {
+  await requireAdminSession();
+
   return <div>Admin Dashboard</div>;
 }
