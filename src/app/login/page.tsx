@@ -1,31 +1,52 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
+import { loginSchema } from "@/modules/auth/login-schema";
+import { resolveSafeRedirect } from "@/modules/auth/resolve-safe-redirect";
 
-export default function LoginPage() {
+type FieldErrors = { email?: string; password?: string };
+
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
-    {},
-  );
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [serverError, setServerError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get("redirect");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: { email?: string; password?: string } = {};
+    setServerError(null);
 
-    if (!email) {
-      newErrors.email = "Email diperlukan";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Format email tidak valid";
+    const parsed = loginSchema.safeParse({ email, password });
+    if (!parsed.success) {
+      const fieldErrors: FieldErrors = {};
+      for (const issue of parsed.error.issues) {
+        const field = issue.path[0];
+        if (field === "email") fieldErrors.email ??= issue.message;
+        if (field === "password") fieldErrors.password ??= issue.message;
+      }
+      setErrors(fieldErrors);
+      return;
     }
 
-    if (!password) {
-      newErrors.password = "Password diperlukan";
-    } else if (password.length < 12) {
-      newErrors.password = "Password minimal 12 karakter";
+    setErrors({});
+
+    const { error } = await authClient.signIn.email({
+      email: parsed.data.email,
+      password: parsed.data.password,
+    });
+
+    if (error) {
+      setServerError("Email atau password salah");
+      return;
     }
 
-    setErrors(newErrors);
+    router.push(resolveSafeRedirect(redirectParam));
   };
 
   return (
@@ -46,7 +67,16 @@ export default function LoginPage() {
         aria-label="Password"
       />
       {errors.password && <span role="alert">{errors.password}</span>}
+      {serverError && <span role="alert">{serverError}</span>}
       <button type="submit">Login</button>
     </form>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }
