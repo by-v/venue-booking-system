@@ -136,13 +136,13 @@
 
 ## 13. Verifikasi Akhir
 
-- [ ] 13.1 Jalankan `npm run lint`; verifikasi tanpa galat. (Skrip NPM Tersedia)
-- [ ] 13.2 Jalankan `npm run typecheck`; verifikasi tanpa galat. (Skrip NPM Tersedia)
-- [ ] 13.3 Jalankan `npm run build`; verifikasi build berhasil. (Skrip NPM Tersedia)
-- [ ] 13.4 Jalankan `npm run test`; verifikasi seluruh tes lulus terhadap PostgreSQL asli. (Skrip NPM Tersedia)
-- [ ] 13.5 Tulis README yang memuat: prasyarat (Node, npm, psql), pembuatan role dan dua database (perintah psql dengan placeholder password), salin `.env.example` ke `.env.local` beserta cara membuat `BETTER_AUTH_SECRET` (`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`), `npm run db:generate` (hanya saat skema berubah), `npm run db:migrate`, seed (`npx tsx scripts/seed-admin.ts`), dan `npm run dev`. Verifikasi setiap perintah yang tidak membutuhkan rahasia dapat dijalankan apa adanya; perintah yang membutuhkan rahasia diverifikasi user. (prasyarat)
-- [ ] 13.6 Jalankan `openspec validate foundation-auth`; verifikasi tanpa peringatan. (prasyarat)
-- [ ] 13.7 Verifikasi `git ls-files` tidak melacak berkas `.env*` selain `.env.example`. (Git Ignore untuk Environment Files)
+- [x] 13.1 Jalankan `npm run lint`; verifikasi tanpa galat. (Skrip NPM Tersedia)
+- [x] 13.2 Jalankan `npm run typecheck`; verifikasi tanpa galat. (Skrip NPM Tersedia)
+- [x] 13.3 Jalankan `npm run build`; verifikasi build berhasil. (Skrip NPM Tersedia)
+- [x] 13.4 Jalankan `npm run test`; verifikasi seluruh tes lulus terhadap PostgreSQL asli. (Skrip NPM Tersedia)
+- [x] 13.5 Tulis README yang memuat: prasyarat (Node, npm, psql), pembuatan role dan dua database (perintah psql dengan placeholder password), salin `.env.example` ke `.env.local` beserta cara membuat `BETTER_AUTH_SECRET` (`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`), `npm run db:generate` (hanya saat skema berubah), `npm run db:migrate`, seed (`npx tsx scripts/seed-admin.ts`), dan `npm run dev`. Verifikasi setiap perintah yang tidak membutuhkan rahasia dapat dijalankan apa adanya; perintah yang membutuhkan rahasia diverifikasi user. (prasyarat)
+- [x] 13.6 Jalankan `openspec validate foundation-auth`; verifikasi tanpa peringatan. (prasyarat)
+- [x] 13.7 Verifikasi `git ls-files` tidak melacak berkas `.env*` selain `.env.example`. (Git Ignore untuk Environment Files)
 
 ## Hasil Verifikasi
 
