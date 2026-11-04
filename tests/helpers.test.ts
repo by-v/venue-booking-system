@@ -45,7 +45,7 @@ describe("helper sesi admin", () => {
 
   it("requireAdminSession mengalihkan ke /login saat tanpa sesi", async () => {
     await expect(requireAdminSession()).rejects.toThrow(
-      "REDIRECT:/login?redirect=/admin",
+      "REDIRECT:/login?redirect=%2Fadmin",
     );
   }, 30000);
 });

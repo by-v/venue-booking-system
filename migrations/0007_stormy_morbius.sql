@@ -1,0 +1,2 @@
+ALTER TABLE "reservation" ADD COLUMN "source" text DEFAULT 'FORM_PUBLIK' NOT NULL;--> statement-breakpoint
+ALTER TABLE "reservation" ADD CONSTRAINT "reservation_source" CHECK ("reservation"."source" in ('FORM_PUBLIK','INPUT_ADMIN'));

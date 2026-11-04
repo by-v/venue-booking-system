@@ -1,0 +1,2 @@
+ALTER TABLE "reservation_status_history" DROP CONSTRAINT "reservation_status_history_reason_code";--> statement-breakpoint
+ALTER TABLE "reservation_status_history" ADD CONSTRAINT "reservation_status_history_reason_code" CHECK ("reservation_status_history"."reason_code" is null or "reservation_status_history"."reason_code" in ('MUNDUR_CUSTOMER','DITOLAK_VENUE','INACTIVITY_3M','EVENT_DATE_PASSED'));

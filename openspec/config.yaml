@@ -8,12 +8,17 @@ context: |
   SUMBER KEBENARAN (wajib dibaca sebelum menulis artefak apa pun):
   - docs/business-rules-register.md : aturan bisnis BR-xx, state machine, daftar item TERBUKA
   - docs/technical-decision-record.md : keputusan stack D1-D12
-  - docs/nfr-keamanan-usulan.md : usulan NFR keamanan (status DIUSULKAN, belum disetujui; requirement yang merujuknya diberi tanda USULAN)
+  - docs/nfr-keamanan-usulan.md : NFR keamanan (DISETUJUI 16 Okt 2026; NFR-SEC-04 PROVISIONAL)
+  - docs/roadmap.md : urutan change, brief per change, keputusan, dan batas scope
+  - docs/product-backlog.md : story dan kriteria penerimaan per change
+  - docs/design/ui-spec.md : spesifikasi UI (peta layar, penyesuaian desain terhadap sistem, token, komponen)
 
   Cara memakai sumber:
   - Aturan berlabel FINAL dan FINAL-DEFAULT boleh dispesifikasikan.
-  - Aturan berlabel PROVISIONAL boleh dispesifikasikan, tetapi requirement-nya harus diberi tanda PROVISIONAL.
-  - Item berlabel TERBUKA (T-xx) TIDAK BOLEH dijadikan perilaku sistem. Catat sebagai pertanyaan terbuka, jangan menebak.
+  - Aturan berlabel PROVISIONAL boleh dispesifikasikan, tetapi requirement-nya harus diberi tanda PROVISIONAL dan GERBANG.
+  - Item berlabel TERBUKA (T-xx) TIDAK BOLEH dijadikan perilaku sistem. Catat sebagai pertanyaan terbuka, jangan menebak. Kecuali roadmap menetapkan DEFAULT untuknya: pakai default itu, tandai PROVISIONAL, dan lanjutkan.
+  - Saat merencanakan sebuah change, baca bagian change itu di docs/roadmap.md (tujuan, jejak, tabel, aturan yang harus teruji, keputusan). Patuhi scope-nya; jangan memperluasnya. Jika brief tidak cukup atau bertentangan dengan register, berhenti dan tanyakan.
+  - UI: aturan sistem menang atas desain. Ikuti docs/design/ui-spec.md; jangan menambah layar, tombol, data, statistik, atau klaim yang tidak ada di sana atau di register; semua teks dan angka dari data nyata. Jika desain asli memuat sesuatu di luar itu, abaikan dan laporkan.
   - Jangan mengubah dokumen di atas. Jika artefak bertentangan dengan dokumen itu, berhenti dan laporkan.
 
   Di luar scope tanpa persetujuan eksplisit: chatbot, fitur AI, SAW/rekomendasi venue,
@@ -31,47 +36,54 @@ context: |
   sebagai integer rupiah; data bisnis tidak dihapus (hanya status berubah); setiap perubahan
   status mencatat waktu, status lama, status baru, alasan, dan pelaku.
 
-  Kondisi repo: aplikasi dibangun bertahap lewat change foundation-auth. Jangan mengasumsikan
-  struktur folder atau modul yang belum ada; periksa isi repo sebelum menulis kode.
+  Kondisi repo: change foundation-auth sudah menyediakan Next.js, Drizzle, Better Auth,
+  harness tes PostgreSQL asli, pengaman database uji, pemindai statis untuk rute admin,
+  dan pabrik pengguna uji. Gunakan ulang fondasi itu; jangan membuat ulang. Periksa isi repo
+  sebelum menulis kode dan jangan mengasumsikan modul yang belum ada.
 
 rules:
   proposal:
     - "Sertakan bagian 'Di luar scope' yang eksplisit."
-    - "Rujuk ID aturan (BR-xx) yang disentuh oleh change ini."
-    - "Tampilkan item TERBUKA yang relevan sebagai pertanyaan terbuka, bukan sebagai keputusan."
-    - "Satu change mencakup satu kemampuan. Jangan menggabungkan change lain dari urutan di register Bagian 7."
+    - "Rujuk ID aturan (BR-xx) yang disentuh oleh change ini dan bagian change di docs/roadmap.md."
+    - "Tampilkan item TERBUKA yang relevan sebagai pertanyaan terbuka, bukan sebagai keputusan; sebutkan default dari roadmap bila ada."
+    - "Satu change mencakup satu kemampuan. Jangan menggabungkan change lain dari urutan di docs/roadmap.md."
   specs:
-    - "Setiap requirement harus punya jejak ke ID aturan (BR-xx) atau kebutuhan fungsional."
+    - "Setiap requirement harus punya jejak ke ID aturan (BR-xx), NFR-SEC-xx yang disetujui, atau kebutuhan fungsional. Jangan memberi jejak BR yang tidak relevan."
     - "Setiap requirement punya minimal satu skenario yang dapat diuji, termasuk kasus gagal dan kasus batas."
     - "Gunakan contoh kasus uji dari register bila tersedia."
-    - "Jangan memuat perilaku dari item TERBUKA."
+    - "Jangan memuat perilaku dari item TERBUKA. Perilaku dari default roadmap diberi tanda PROVISIONAL dan GERBANG."
+    - "Spec menyatakan perilaku sistem, bukan aturan proses (misalnya jumlah tes). Perilaku keamanan baru yang belum ada di NFR diajukan sebagai usulan NFR, tidak ditulis sebagai fakta."
+    - "Untuk change yang menyentuh UI, rujuk story di docs/product-backlog.md dan layar di docs/design/ui-spec.md; ketentuan tampilan yang bertentangan dengan register tidak boleh masuk spec."
   design:
     - "Ikuti keputusan di docs/technical-decision-record.md. Penyimpangan harus dinyatakan beserta alasannya."
-    - "Jika relevan, jelaskan penegakan aturan di level database (constraint, transaksi), bukan hanya validasi aplikasi."
+    - "Untuk setiap tabel baru, sebutkan constraint database yang menegakkan aturan bisnis (unik, check, FK) dan transaksi yang dipakai; jangan hanya validasi aplikasi."
     - "Tempatkan aturan bisnis di modul domain terpisah dari UI dan route handler."
     - "Catat asumsi, alternatif yang ditolak, dan pertanyaan terbuka."
     - "Jangan mengunci nomor versi paket dari ingatan. Versi diverifikasi saat pemasangan."
-    - "Setiap nama fungsi, opsi konfigurasi, atau API pihak ketiga wajib dikutip dari dokumentasi atau tipe paket yang terpasang, dengan URL atau path sumbernya. Jika tidak bisa dikutip, tandai [BELUM TERVERIFIKASI] dan jangan menulisnya sebagai fakta."
+    - "Setiap nama fungsi, opsi konfigurasi, atau API pihak ketiga (Better Auth, Drizzle, Next.js) wajib dikutip dari dokumentasi atau tipe paket yang terpasang, dengan URL atau path sumbernya. Jika tidak bisa dikutip, tandai [BELUM TERVERIFIKASI] di prosa dan jangan menulisnya sebagai fakta atau di dalam contoh kode."
   tasks:
     - "Pecah menjadi tugas kecil (sekitar maksimal 2 jam), masing-masing merujuk requirement."
-    - "Sertakan tugas pengujian untuk setiap requirement. Tes aturan bisnis memakai PostgreSQL asli, bukan mock."
-    - "Jangan membuat tugas untuk fitur di luar change ini."
-    - "Akhiri dengan tugas verifikasi berisi perintah yang harus lulus."
+    - "Urutan harus dapat dijalankan: kode yang diimpor oleh sebuah tes dibuat sebelum tesnya; migrasi hanya setelah skema ada; gerbang verifikasi diletakkan sebelum tugas yang bergantung padanya; tes yang membutuhkan akun memakai pabrik pengguna uji yang sudah ada."
+    - "Sertakan tugas pengujian untuk setiap requirement. Tes aturan bisnis memakai PostgreSQL asli, bukan mock. Perintah verifikasi memakai jalur berkas tes eksplisit dan sintaks PowerShell."
+    - "Awali setiap grup dengan baris 'Catatan apply:' berisi batasan khusus grup itu dan gerbang mana yang tidak menghentikan apply. Tandai tugas yang butuh rahasia atau terminal interaktif sebagai [LANGKAH MANUAL], dan titik review wajib sebagai [BERHENTI]."
+    - "Jangan membuat tugas untuk fitur di luar change ini. Jangan membuat akun atau data di database dev."
+    - "Akhiri dengan tugas verifikasi berisi perintah yang harus lulus, termasuk openspec validate dan pemeriksaan bahwa tidak ada berkas .env* selain .env.example yang terlacak."
+    - "Untuk grup yang membangun halaman UI, akhiri dengan tugas [BERHENTI] agar user membandingkan hasil di browser dengan docs/design. Jika token di docs/design/ui-spec.md masih TBD, grup pertama change UI berhenti sebagai [LANGKAH MANUAL]."
 
 operations:
   apply:
     guidance:
-      - "Ruang lingkup: kerjakan hanya grup tugas yang diminta user pada prompt, lalu berhenti setelah tugas terakhir grup itu walaupun masih ada tugas pending. Jangan menambah fitur, dependensi, atau berkas di luar tugas, spec, dan design; jika perlu, berhenti dan tanyakan."
+      - "Ruang lingkup: jika user menyebut grup tertentu, kerjakan hanya grup itu. Jika user tidak menyebut grup, kerjakan SATU grup berikutnya yang masih memiliki tugas belum selesai, lalu berhenti setelah tugas terakhir grup itu walaupun masih ada tugas pending. Berhenti juga tepat pada tugas bertanda [BERHENTI] atau [LANGKAH MANUAL]. Baca baris 'Catatan apply' di awal grup sebelum mengerjakannya. Jangan menambah fitur, dependensi, atau berkas di luar tugas, spec, dan design; jika perlu, berhenti dan tanyakan."
       - "Jika ada ambiguitas atau konflik dengan register, TDR, spec, atau design, berhenti dan tanyakan. Jangan menebak."
-      - "Tandai tugas [x] hanya setelah perilaku yang ditentukan terpenuhi DAN perintah verifikasinya benar-benar dijalankan dan lulus. Laporkan output apa adanya, termasuk kegagalan. Jangan menulis 'seharusnya lulus'."
+      - "Tandai tugas [x] hanya setelah perilaku yang ditentukan terpenuhi DAN perintah verifikasinya benar-benar dijalankan dan lulus. Laporkan output apa adanya, termasuk kegagalan. Jangan menulis 'seharusnya lulus'. Jangan menandai tugas yang berkas tesnya belum ada."
       - "Jangan melemahkan tes: jangan menghapus atau mengubah assertion agar lulus, jangan memakai skip, only, atau todo. Perbaiki kodenya, atau berhenti dan laporkan bila spec atau tasks perlu diubah."
       - "Rahasia: jangan membaca, mencetak, atau menyalin isi .env.local atau secret lain ke output, log, komentar, atau pesan commit, dan jangan menjalankan perintah yang menampilkannya."
       - "Database: jangan menjalankan perintah tulis atau hapus (TRUNCATE, DROP, DELETE, INSERT) pada koneksi yang belum diverifikasi lewat SELECT current_database() berakhiran _test. Tes selalu memakai database uji. Satu-satunya penulisan ke database dev adalah migrasi lewat npm run db:migrate bila tugas memintanya. Jangan membuat akun atau data di database dev."
       - "Gerbang verifikasi: isi tabel Hasil Verifikasi dengan sumber nyata (URL dokumentasi, path berkas di node_modules, atau perintah yang dijalankan) dan hasil yang diamati. Jika hasilnya konsisten dengan spec dan design, catat lalu lanjutkan. Berhenti hanya bila hasilnya bertentangan dengan spec atau design atau tidak dapat diverifikasi. Pengecualian: gerbang yang tertulis TIDAK MENGHENTIKAN APPLY cukup dicatat."
       - "Jika dokumentasi online tidak dapat diakses, verifikasi lewat --help, tipe paket di node_modules, atau percobaan terukur, dan tulis sumbernya."
-      - "Git: jangan push dan jangan commit di cabang main atau master (periksa git branch --show-current lebih dulu; jika main atau master, berhenti). Setelah satu grup tugas selesai dan seluruh tes lulus, buat SATU commit lokal dengan pesan feat(foundation-auth): <ringkasan grup>. Jangan commit bila ada tes gagal. Jangan menjalankan git reset, clean, atau stash tanpa persetujuan user."
+      - "Git: jangan push dan jangan commit di cabang main atau master (periksa git branch --show-current lebih dulu; jika main atau master, berhenti). Setelah satu grup tugas selesai dan seluruh tes lulus, buat SATU commit lokal dengan pesan feat(<nama-change>): <ringkasan grup>. Jangan commit bila ada tes gagal. Jangan menjalankan git reset, clean, atau stash tanpa persetujuan user."
       - "Jangan mengubah folder docs/ dan .opencode/ dan jangan menjalankan npm audit fix. Jangan menambah dependensi di luar yang disebut tugas; bila sebuah gerbang mensyaratkannya, berhenti dan tanyakan."
-      - "Semua perintah tes non-interaktif dan tidak berjalan dalam mode watch."
+      - "Semua perintah tes non-interaktif dan tidak berjalan dalam mode watch. Pastikan tidak ada proses vitest lain yang aktif sebelum menjalankan tes; dua proses pada satu database uji saling mengganggu."
       - "Penyimpangan kecil yang tidak mengubah perilaku spec boleh dikerjakan dan WAJIB dicatat di laporan akhir bagian Penyimpangan beserta alasannya."
       - "Laporan akhir singkat (maksimal sekitar 40 baris): tugas yang selesai, berkas dibuat atau diubah, penyimpangan, isian Hasil Verifikasi yang baru (satu baris per kode), dan hal yang butuh keputusan user. Jangan menempelkan keluaran panjang; user mengumpulkan bukti dengan skrip sendiri."
   archive:

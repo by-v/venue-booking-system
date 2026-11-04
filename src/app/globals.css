@@ -1,26 +1,137 @@
 @import "tailwindcss";
 
+/*
+ * Token desain mengikuti docs/design/ui-spec.md bagian 2.
+ * Nilai mentah ada di :root; pemetaan ke utilitas Tailwind v4 lewat
+ * `@theme inline` agar variabel runtime (mis. --font-inter dari next/font)
+ * tetap utuh saat dipakai di utilitas.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #191a1d;
+  --ink-soft: #24262a;
+  --ivory: #f7f3ec;
+  --gold-100: #f5e8cf;
+  --gold-500: #c7a46a;
+  --gold-700: #9b753e;
+  --white: #ffffff;
+  --gray-300: #e5e7eb;
+  --gray-600: #717784;
+  --status-pending: #fff0cc;
+  --status-accepted: #ddf3e4;
+  --status-suspended: #dfebff;
+  --status-cancelled: #fce3e3;
+  --line-light: rgba(25, 26, 29, 0.12);
+  --line-dark: rgba(247, 243, 236, 0.14);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Warna */
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ivory: var(--ivory);
+  --color-gold-100: var(--gold-100);
+  --color-gold-500: var(--gold-500);
+  --color-gold-700: var(--gold-700);
+  --color-white: var(--white);
+  --color-gray-300: var(--gray-300);
+  --color-gray-600: var(--gray-600);
+  --color-status-pending: var(--status-pending);
+  --color-status-accepted: var(--status-accepted);
+  --color-status-suspended: var(--status-suspended);
+  --color-status-cancelled: var(--status-cancelled);
+  --color-focus: var(--gold-500);
+  --color-line-light: var(--line-light);
+  --color-line-dark: var(--line-dark);
+
+  /* Tipografi */
+  --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* Judul editorial halaman publik. Admin tetap memakai --font-heading. */
+  --font-display: var(--font-playfair), ui-serif, Georgia, "Times New Roman",
+    serif;
+
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+  --text-sm: 14px;
+  --text-sm--line-height: 20px;
+  --text-base: 16px;
+  --text-base--line-height: 24px;
+  --text-lg: 18px;
+  --text-lg--line-height: 28px;
+  --text-xl: 20px;
+  --text-xl--line-height: 28px;
+  --text-2xl: 24px;
+  --text-2xl--line-height: 32px;
+  --text-3xl: 30px;
+  --text-3xl--line-height: 36px;
+  --text-4xl: 36px;
+  --text-4xl--line-height: 40px;
+
+  /* Sudut (radius.full memakai `rounded-full` bawaan Tailwind) */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Bayangan */
+  --shadow-sm: 0 1px 2px rgba(25, 26, 29, 0.06);
+  --shadow-md: 0 4px 12px rgba(25, 26, 29, 0.1);
+  --shadow-lg: 0 8px 24px rgba(25, 26, 29, 0.14);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    background-color: var(--ivory);
+    color: var(--ink);
+    font-family: var(--font-body);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--gold-500);
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/*
+ * Bukti Booking siap cetak (D6). Navigasi, footer, dan kontrol layar
+ * disembunyikan; hanya isi bukti yang dicetak. PDF dihasilkan peramban.
+ */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  [data-public-shell-header],
+  [data-public-shell-footer],
+  .no-print {
+    display: none !important;
+  }
+
+  [data-public-shell-main],
+  .print-page,
+  .print-page-inner {
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+  }
+
+  .print-proof {
+    border: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    max-width: none !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .print-proof * {
+    color: #000000 !important;
+  }
+
+  @page {
+    margin: 16mm;
+  }
 }

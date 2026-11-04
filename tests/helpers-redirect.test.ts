@@ -25,7 +25,7 @@ describe("requireAdminSession membawa path asli pada redirect", () => {
     });
 
     await expect(requireAdminSession()).rejects.toThrow(
-      "REDIRECT:/login?redirect=/admin/settings",
+      "REDIRECT:/login?redirect=%2Fadmin%2Fsettings",
     );
   }, 30000);
 
@@ -33,7 +33,7 @@ describe("requireAdminSession membawa path asli pada redirect", () => {
     mockState.headerStore = new Headers({ "x-original-pathname": "/admin" });
 
     await expect(requireAdminSession()).rejects.toThrow(
-      "REDIRECT:/login?redirect=/admin",
+      "REDIRECT:/login?redirect=%2Fadmin",
     );
   }, 30000);
 
@@ -43,7 +43,7 @@ describe("requireAdminSession membawa path asli pada redirect", () => {
     });
 
     await expect(requireAdminSession()).rejects.toThrow(
-      "REDIRECT:/login?redirect=/admin",
+      "REDIRECT:/login?redirect=%2Fadmin",
     );
   }, 30000);
 });

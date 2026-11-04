@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Button, Card, Input } from "@/components/ui";
 import { authClient } from "@/lib/auth-client";
 import { loginSchema } from "@/modules/auth/login-schema";
 import { resolveSafeRedirect } from "@/modules/auth/resolve-safe-redirect";
@@ -42,7 +43,11 @@ function LoginForm() {
     });
 
     if (error) {
-      setServerError("Email atau password salah");
+      setServerError(
+        error.status === 429
+          ? "Terlalu banyak percobaan login. Silakan coba lagi nanti."
+          : "Email atau password salah",
+      );
       return;
     }
 
@@ -50,26 +55,47 @@ function LoginForm() {
   };
 
   return (
-    <form role="form" onSubmit={handleSubmit}>
-      <input
-        type="email"
-        name="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        aria-label="Email"
-      />
-      {errors.email && <span role="alert">{errors.email}</span>}
-      <input
-        type="password"
-        name="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        aria-label="Password"
-      />
-      {errors.password && <span role="alert">{errors.password}</span>}
-      {serverError && <span role="alert">{serverError}</span>}
-      <button type="submit">Login</button>
-    </form>
+    <div className="flex flex-1 items-center justify-center bg-ivory px-6 py-16">
+      <Card className="w-full max-w-sm">
+        <h1 className="font-heading text-2xl font-semibold text-ink">
+          Masuk Admin
+        </h1>
+        <p className="mt-1 text-sm text-gray-600">
+          H.A. Djunaid Convention Center
+        </p>
+
+        <form
+          role="form"
+          onSubmit={handleSubmit}
+          className="mt-6 flex flex-col gap-4"
+        >
+          <Input
+            label="Email"
+            type="email"
+            name="email"
+            autoComplete="username"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            error={errors.email}
+          />
+          <Input
+            label="Password"
+            type="password"
+            name="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={errors.password}
+          />
+          {serverError ? (
+            <span role="alert" className="text-xs text-red-600">
+              {serverError}
+            </span>
+          ) : null}
+          <Button type="submit">Login</Button>
+        </form>
+      </Card>
+    </div>
   );
 }
 

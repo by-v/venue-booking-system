@@ -1,0 +1,4 @@
+ALTER TABLE "reservation_activity" DROP CONSTRAINT "reservation_activity_type";--> statement-breakpoint
+ALTER TABLE "reservation" ADD COLUMN "payment_due_date_override" date;--> statement-breakpoint
+ALTER TABLE "reservation" ADD CONSTRAINT "reservation_payment_due_date_override" CHECK ("reservation"."payment_due_date_override" is null or "reservation"."payment_due_date_override" <= "reservation"."event_date");--> statement-breakpoint
+ALTER TABLE "reservation_activity" ADD CONSTRAINT "reservation_activity_type" CHECK ("reservation_activity"."type" in ('SUBMISSION','FOLLOW_UP_NOTE','STATUS_CHANGE','ITEM_ADDED','PAYMENT_RECORDED','PAYMENT_STATUS_CHANGED','DATA_UPDATED'));
