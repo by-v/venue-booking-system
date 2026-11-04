@@ -12,7 +12,8 @@
             "*.env": "deny",
             "*.env.*": "deny",
             "*.env.example": "allow",
-            "docs/*": "deny",
+            "docs/*": "allow",
+            "docs/scrum/*": "allow",
             ".opencode/*": "deny"
         },
         "bash": {

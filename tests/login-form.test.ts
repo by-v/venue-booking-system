@@ -79,6 +79,21 @@ describe("form login", () => {
     expect(push).not.toHaveBeenCalled();
   });
 
+  it("status 429 menampilkan pesan khusus pembatasan laju", async () => {
+    signIn.mockResolvedValueOnce({
+      error: { status: 429, message: "Too many requests" },
+    });
+    render(createElement(LoginPage));
+    fillAndSubmit("admin@example.test", "password-uji-123456");
+
+    await waitFor(() =>
+      expect(screen.getByRole("alert").textContent).toBe(
+        "Terlalu banyak percobaan login. Silakan coba lagi nanti.",
+      ),
+    );
+    expect(push).not.toHaveBeenCalled();
+  });
+
   it("login sukses mengarahkan ke fallback aman /admin", async () => {
     signIn.mockResolvedValueOnce({ error: null });
     render(createElement(LoginPage));

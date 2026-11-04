@@ -25,7 +25,7 @@ describe("Server Action tanpa sesi", () => {
     mockState.headerStore = new Headers({ "x-original-pathname": "/admin" });
 
     await expect(exampleAction()).rejects.toThrow(
-      "REDIRECT:/login?redirect=/admin",
+      "REDIRECT:/login?redirect=%2Fadmin",
     );
   }, 30000);
 

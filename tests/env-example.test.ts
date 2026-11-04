@@ -32,6 +32,7 @@ const REQUIRED_KEYS = [
   "BETTER_AUTH_SECRET",
   "BETTER_AUTH_URL",
   "AUTH_SESSION_MAX_AGE",
+  "CRON_SECRET",
 ];
 
 describe(".env.example", () => {
@@ -46,6 +47,7 @@ describe(".env.example", () => {
   it("tidak memuat secret nyata", () => {
     expect(vars.BETTER_AUTH_SECRET.toLowerCase()).toContain("change_me");
     expect(vars.BETTER_AUTH_SECRET).not.toMatch(/^[0-9a-f]{64}$/i);
+    expect(vars.CRON_SECRET, "placeholder CRON_SECRET").toBe("");
 
     for (const key of ["DATABASE_URL", "TEST_DATABASE_URL"]) {
       const url = new URL(vars[key]);

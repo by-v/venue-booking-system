@@ -48,7 +48,7 @@ describe("cookie valid tetapi sesi sudah dicabut", () => {
       "x-original-pathname": "/admin/settings",
     });
     await expect(requireAdminSession()).rejects.toThrow(
-      "REDIRECT:/login?redirect=/admin/settings",
+      "REDIRECT:/login?redirect=%2Fadmin%2Fsettings",
     );
   }, 30000);
 });

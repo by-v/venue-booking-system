@@ -12,7 +12,7 @@ export async function requireAdminSession() {
     const headerList = await headers();
     const pathname = headerList.get("x-original-pathname") || "/";
     const safePath = resolveSafeRedirect(pathname);
-    redirect(`/login?redirect=${safePath}`);
+    redirect(`/login?redirect=${encodeURIComponent(safePath)}`);
   }
 
   return session;
