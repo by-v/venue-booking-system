@@ -1,7 +1,10 @@
+import { and, between, eq, gte, inArray, ne, sql } from "drizzle-orm";
+
 import { db } from "@/lib/db";
-import { reservation, customer } from "@/lib/db/reservation-schema";
+import { dateLock } from "@/lib/db/date-lock-schema";
+import { customer, reservation } from "@/lib/db/reservation-schema";
 import { packageTable } from "@/lib/db/venue-schema";
-import { and, between, eq, sql, gte, desc } from "drizzle-orm";
+import { addDays, toDateString, todayInJakarta } from "@/modules/availability/dates";
 
 export interface MonthSummary {
   month: string; // YYYY-MM
@@ -12,26 +15,79 @@ export interface MonthSummary {
   dibatalkan: number;
 }
 
-export interface EventInDay {
+export interface CalendarEventEntry {
+  kind: "EVENT";
   id: string;
   customerName: string;
   shortName: string;
   status: string;
   packageName: string;
   eventType: string;
+  durationHours: number;
+  bookingNumber: string | null;
+  setupDates: string[];
 }
 
-export interface DayDetail {
+export interface CalendarSetupEntry {
+  kind: "SETUP";
+  reservationId: string;
+  customerName: string;
+  shortName: string;
+}
+
+export interface CalendarDay {
   date: string; // YYYY-MM-DD
-  status: "TERSEDIA" | "PENDING" | "DITERIMA" | "SELESAI" | "DIBATALKAN";
-  reservationCount: number;
-  events?: EventInDay[];
+  inMonth: boolean;
+  isToday: boolean;
+  events: CalendarEventEntry[];
+  setups: CalendarSetupEntry[];
+}
+
+export interface MonthCalendarStats {
+  active: number;
+  diterima: number;
+  pending: number;
+  ditangguhkan: number;
+  dibatalkan: number;
+  selesai: number;
+}
+
+export interface MonthCalendarGrid {
+  month: string;
+  today: string;
+  days: CalendarDay[];
+  stats: MonthCalendarStats;
 }
 
 interface MonthStatusRow {
   month: string;
   status: string;
   count: number;
+}
+
+interface CalendarReservationRow {
+  id: string;
+  eventDate: string;
+  status: string;
+  eventType: string;
+  customerName: string | null;
+  packageName: string | null;
+  durationHours: number;
+  bookingNumber: string | null;
+}
+
+function shortCustomerName(fullName: string): string {
+  return fullName.split(" & ")[0]?.trim() || fullName;
+}
+
+function monthGridRange(month: string): { start: string; end: string } {
+  const [year, monthNumber] = month.split("-").map(Number);
+  const firstDay = new Date(Date.UTC(year, monthNumber - 1, 1));
+  const leadingDays = (firstDay.getUTCDay() + 6) % 7;
+  const start = addDays(toDateString(firstDay), -leadingDays);
+
+  // Enam baris minggu agar tinggi grid stabil di semua bulan.
+  return { start, end: addDays(start, 41) };
 }
 
 /**
@@ -55,23 +111,25 @@ export async function getYearCalendarSummary(year: number): Promise<MonthSummary
       )
     )
     .groupBy(
-      sql`to_char(${reservation.eventDate}, 'YYYY-MM')`, 
+      sql`to_char(${reservation.eventDate}, 'YYYY-MM')`,
       reservation.status
     ) as MonthStatusRow[];
 
   // Generate all 12 months
   const months: MonthSummary[] = [];
   for (let m = 1; m <= 12; m++) {
-    const monthStr = `${year}-${String(m).padStart(2, '0')}`;
+    const monthStr = `${year}-${String(m).padStart(2, "0")}`;
     const monthData = results.filter((r: MonthStatusRow) => r.month === monthStr);
 
     months.push({
       month: monthStr,
       tersedia: 30, // Simplified: assume 30 days available by default
-      pending: monthData.find((r: MonthStatusRow) => r.status === 'PENDING' || r.status === 'DITANGGUHKAN')?.count || 0,
-      diterima: monthData.find((r: MonthStatusRow) => r.status === 'DITERIMA')?.count || 0,
-      selesai: monthData.find((r: MonthStatusRow) => r.status === 'SELESAI')?.count || 0,
-      dibatalkan: monthData.find((r: MonthStatusRow) => r.status === 'DIBATALKAN')?.count || 0,
+      pending:
+        (monthData.find((r: MonthStatusRow) => r.status === "PENDING")?.count ?? 0) +
+        (monthData.find((r: MonthStatusRow) => r.status === "DITANGGUHKAN")?.count ?? 0),
+      diterima: monthData.find((r: MonthStatusRow) => r.status === "DITERIMA")?.count || 0,
+      selesai: monthData.find((r: MonthStatusRow) => r.status === "SELESAI")?.count || 0,
+      dibatalkan: monthData.find((r: MonthStatusRow) => r.status === "DIBATALKAN")?.count || 0,
     });
   }
 
@@ -79,83 +137,149 @@ export async function getYearCalendarSummary(year: number): Promise<MonthSummary
 }
 
 /**
- * Mendapatkan detail reservasi per tanggal dalam 1 bulan untuk kalender admin.
- * Include customer name dan package name dengan JOIN.
+ * Mendapatkan grid kalender satu bulan (termasuk tanggal bulan tetangga),
+ * event per hari, tanggal setup, dan statistik status.
  */
-export async function getMonthCalendarDetail(month: string): Promise<DayDetail[]> {
-  const [year, monthNum] = month.split('-').map(Number);
-  const daysInMonth = new Date(year, monthNum, 0).getDate();
-  
-  const startDate = `${month}-01`;
-  const endDate = `${month}-${String(daysInMonth).padStart(2, '0')}`;
+export async function getMonthCalendarGrid(
+  month: string,
+  today: string = todayInJakarta()
+): Promise<MonthCalendarGrid> {
+  const { start, end } = monthGridRange(month);
 
-  const reservations = await db
+  const reservationRows = (await db
     .select({
-      eventDate: reservation.eventDate,
       id: reservation.id,
+      eventDate: reservation.eventDate,
       status: reservation.status,
       eventType: reservation.eventType,
-      customerId: reservation.customerId,
-      packageId: reservation.packageId,
       customerName: customer.name,
       packageName: packageTable.name,
+      durationHours: reservation.packageDurationHours,
+      bookingNumber: reservation.bookingNumber,
     })
     .from(reservation)
     .leftJoin(customer, eq(reservation.customerId, customer.id))
     .leftJoin(packageTable, eq(reservation.packageId, packageTable.id))
     .where(
       and(
-        between(reservation.eventDate, startDate, endDate),
-        sql`${reservation.status} != 'AUTO_CANCELLED'`
+        between(reservation.eventDate, start, end),
+        ne(reservation.status, "AUTO_CANCELLED")
       )
-    );
+    )) as CalendarReservationRow[];
 
-  // Generate all days in month
-  const days: DayDetail[] = [];
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = `${month}-${String(d).padStart(2, '0')}`;
-    const dayReservations = reservations.filter(r => r.eventDate === dateStr);
-    
-    let status: DayDetail['status'] = 'TERSEDIA';
-    const events: EventInDay[] = [];
+  const eventsById = new Map<string, CalendarEventEntry>();
+  const eventsByDate = new Map<string, CalendarEventEntry[]>();
 
-    if (dayReservations.length > 0) {
-      // Priority: DITERIMA > PENDING > SELESAI > DIBATALKAN
-      const hasAccepted = dayReservations.some(r => r.status === 'DITERIMA');
-      const hasPending = dayReservations.some(r => r.status === 'PENDING' || r.status === 'DITANGGUHKAN');
-      const hasCompleted = dayReservations.some(r => r.status === 'SELESAI');
-      const hasCancelled = dayReservations.some(r => r.status === 'DIBATALKAN');
+  for (const row of reservationRows) {
+    const fullName = row.customerName || "Customer";
+    const entry: CalendarEventEntry = {
+      kind: "EVENT",
+      id: row.id,
+      customerName: fullName,
+      shortName: shortCustomerName(fullName),
+      status: row.status,
+      packageName: row.packageName || "Paket",
+      eventType: row.eventType || "LAINNYA",
+      durationHours: row.durationHours,
+      bookingNumber: row.bookingNumber,
+      setupDates: [],
+    };
 
-      if (hasAccepted) status = 'DITERIMA';
-      else if (hasPending) status = 'PENDING';
-      else if (hasCompleted) status = 'SELESAI';
-      else if (hasCancelled) status = 'DIBATALKAN';
+    eventsById.set(row.id, entry);
+    const existing = eventsByDate.get(row.eventDate) ?? [];
+    existing.push(entry);
+    eventsByDate.set(row.eventDate, existing);
+  }
 
-      // Build events array
-      dayReservations.forEach(r => {
-        const fullName = r.customerName || 'Customer';
-        const shortName = fullName.split(' & ')[0] || fullName.split(' ')[0];
-        
-        events.push({
-          id: r.id,
-          customerName: fullName,
-          shortName: shortName,
-          status: r.status,
-          packageName: r.packageName || 'Paket',
-          eventType: r.eventType || 'LAINNYA',
-        });
+  // Tanggal setup diambil dari date_lock agar hanya kunci nyata yang tampil.
+  const setupRows =
+    eventsById.size > 0
+      ? await db
+          .select({
+            date: dateLock.date,
+            reservationId: dateLock.reservationId,
+            customerName: customer.name,
+          })
+          .from(dateLock)
+          .innerJoin(reservation, eq(dateLock.reservationId, reservation.id))
+          .leftJoin(customer, eq(reservation.customerId, customer.id))
+          .where(
+            and(
+              eq(dateLock.kind, "SETUP"),
+              inArray(dateLock.reservationId, [...eventsById.keys()]),
+              ne(reservation.status, "AUTO_CANCELLED")
+            )
+          )
+      : [];
+
+  const setupsByDate = new Map<string, CalendarSetupEntry[]>();
+
+  for (const row of setupRows) {
+    if (!row.reservationId) continue;
+
+    const event = eventsById.get(row.reservationId);
+    if (event) {
+      event.setupDates.push(row.date);
+    }
+
+    if (row.date < start || row.date > end) continue;
+
+    const fullName = row.customerName || event?.customerName || "Customer";
+    const entries = setupsByDate.get(row.date) ?? [];
+
+    if (!entries.some((entry) => entry.reservationId === row.reservationId)) {
+      entries.push({
+        kind: "SETUP",
+        reservationId: row.reservationId,
+        customerName: fullName,
+        shortName: shortCustomerName(fullName),
       });
     }
 
+    setupsByDate.set(row.date, entries);
+  }
+
+  for (const event of eventsById.values()) {
+    event.setupDates.sort();
+  }
+
+  const days: CalendarDay[] = [];
+  const stats: MonthCalendarStats = {
+    active: 0,
+    diterima: 0,
+    pending: 0,
+    ditangguhkan: 0,
+    dibatalkan: 0,
+    selesai: 0,
+  };
+
+  for (let index = 0; index < 42; index += 1) {
+    const date = addDays(start, index);
+    const events = eventsByDate.get(date) ?? [];
+    const inMonth = date.startsWith(month);
+
+    if (inMonth) {
+      for (const event of events) {
+        if (event.status === "DITERIMA") stats.diterima += 1;
+        else if (event.status === "PENDING") stats.pending += 1;
+        else if (event.status === "DITANGGUHKAN") stats.ditangguhkan += 1;
+        else if (event.status === "DIBATALKAN") stats.dibatalkan += 1;
+        else if (event.status === "SELESAI") stats.selesai += 1;
+      }
+    }
+
     days.push({
-      date: dateStr,
-      status,
-      reservationCount: dayReservations.length,
-      events: events.length > 0 ? events : undefined,
+      date,
+      inMonth,
+      isToday: date === today,
+      events,
+      setups: setupsByDate.get(date) ?? [],
     });
   }
 
-  return days;
+  stats.active = stats.diterima + stats.pending + stats.ditangguhkan;
+
+  return { month, today, days, stats };
 }
 
 /**
@@ -188,8 +312,8 @@ export async function getDateReservations(date: string) {
  * Mendapatkan upcoming reservasi untuk section "Agenda berikutnya".
  */
 export async function getUpcomingReservations(limit: number = 5) {
-  const today = new Date().toISOString().split('T')[0];
-  
+  const today = todayInJakarta();
+
   return await db
     .select({
       id: reservation.id,
@@ -211,5 +335,3 @@ export async function getUpcomingReservations(limit: number = 5) {
     .orderBy(reservation.eventDate, reservation.createdAt)
     .limit(limit);
 }
-
-

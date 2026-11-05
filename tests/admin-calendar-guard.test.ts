@@ -20,7 +20,7 @@ beforeEach(() => {
   mockState.headerStore = new Headers();
 });
 
-const searchParams = { year: "2027" };
+const searchParams = Promise.resolve({ year: "2027" });
 
 describe("proteksi halaman /admin/kalender", () => {
   it("mengalihkan pengguna tanpa sesi ke /login", async () => {

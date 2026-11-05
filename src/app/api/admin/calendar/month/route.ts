@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { getMonthCalendarDetail } from "@/modules/calendar/queries";
+
 import { requireAdminSession } from "@/modules/auth";
+import { getMonthCalendarGrid } from "@/modules/calendar/queries";
 
 export async function GET(request: Request) {
   try {
@@ -16,9 +17,9 @@ export async function GET(request: Request) {
       );
     }
 
-    const days = await getMonthCalendarDetail(month);
+    const grid = await getMonthCalendarGrid(month);
 
-    return NextResponse.json({ days });
+    return NextResponse.json(grid);
   } catch (error) {
     console.error("Error fetching month calendar:", error);
     return NextResponse.json(

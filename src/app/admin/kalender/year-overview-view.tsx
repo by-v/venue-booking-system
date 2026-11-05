@@ -15,11 +15,6 @@ const MONTHS = [
   "Juli", "Agustus", "September", "Oktober", "November", "Desember"
 ] as const;
 
-const MONTH_SHORT = [
-  "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
-  "Jul", "Agu", "Sep", "Okt", "Nov", "Des"
-] as const;
-
 /**
  * Year overview kalender admin - menampilkan 12 bulan dalam grid.
  * Design reference: Screenshot 1 (grid 3x4 dengan mini calendar per bulan).
@@ -36,11 +31,6 @@ export function YearOverviewView({ initialYear = 2026, summaries }: YearOverview
     setSelectedYear(year);
     router.push(`/admin/kalender?year=${year}`);
   };
-
-  const totalReservations = summaries.reduce(
-    (sum, s) => sum + s.pending + s.diterima + s.selesai,
-    0
-  );
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">

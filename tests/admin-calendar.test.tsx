@@ -14,6 +14,10 @@ vi.mock("@/modules/calendar/queries", () => ({
   getYearCalendarSummary,
 }));
 
+vi.mock("@/modules/availability/dates", () => ({
+  todayInJakarta: () => "2027-01-15",
+}));
+
 vi.mock("next/link", () => ({
   default: ({
     href,
@@ -34,9 +38,21 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: vi.fn(),
   }),
+  redirect: (url: string): never => {
+    throw new Error(`REDIRECT:${url}`);
+  },
 }));
 
 import KalenderAdminPage from "@/app/admin/kalender/page";
+
+const emptyMonth = {
+  month: "2027-01",
+  tersedia: 30,
+  pending: 0,
+  diterima: 0,
+  selesai: 0,
+  dibatalkan: 0,
+};
 
 afterEach(() => {
   cleanup();
@@ -44,55 +60,67 @@ afterEach(() => {
 });
 
 describe("halaman kalender admin", () => {
-  it("menampilkan year overview dengan summary per bulan", async () => {
+  it("menampilkan year overview dengan dua belas bulan", async () => {
     getYearCalendarSummary.mockResolvedValue([
-      { month: "2027-01", tersedia: 25, pending: 2, diterima: 3, selesai: 1, dibatalkan: 0 },
-      { month: "2027-02", tersedia: 22, pending: 1, diterima: 4, selesai: 2, dibatalkan: 0 },
-      { month: "2027-03", tersedia: 20, pending: 3, diterima: 5, selesai: 2, dibatalkan: 1 },
+      ...Array.from({ length: 12 }, (_, index) => ({
+        ...emptyMonth,
+        month: `2027-${String(index + 1).padStart(2, "0")}`,
+      })),
     ]);
 
     render(
       await KalenderAdminPage({
-        searchParams: { year: "2027" },
+        searchParams: Promise.resolve({ year: "2027" }),
       }),
     );
 
-    expect(screen.getByRole("heading", { name: /Kalender Admin/i })).toBeTruthy();
-    expect(screen.getByText(/Tahun 2027/i)).toBeTruthy();
-    expect(screen.getByText(/Januari 2027/i)).toBeTruthy();
-    expect(screen.getByText(/Februari 2027/i)).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Kalender" })).toBeTruthy();
+    expect(screen.getByText("2027")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Januari" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Desember" })).toBeTruthy();
   });
 
   it("menampilkan badge count untuk pending dan diterima", async () => {
     getYearCalendarSummary.mockResolvedValue([
-      { month: "2027-03", tersedia: 20, pending: 3, diterima: 5, selesai: 0, dibatalkan: 0 },
+      ...Array.from({ length: 12 }, (_, index) => ({
+        ...emptyMonth,
+        month: `2027-${String(index + 1).padStart(2, "0")}`,
+        pending: index === 2 ? 3 : 0,
+        diterima: index === 2 ? 5 : 0,
+      })),
     ]);
 
     const { container } = render(
       await KalenderAdminPage({
-        searchParams: { year: "2027" },
+        searchParams: Promise.resolve({ year: "2027" }),
       }),
     );
 
-    const pendingBadges = container.querySelectorAll('.bg-yellow-100');
-    const diterimaBadges = container.querySelectorAll('.bg-red-100');
-    
-    expect(pendingBadges.length).toBeGreaterThan(0);
-    expect(diterimaBadges.length).toBeGreaterThan(0);
+    expect(container.querySelectorAll(".bg-yellow-100").length).toBeGreaterThan(0);
+    expect(container.querySelectorAll(".bg-green-100").length).toBeGreaterThan(0);
   });
 
-  it("menampilkan sticky legend dengan status warna", async () => {
+  it("menampilkan legenda status di bagian bawah", async () => {
     getYearCalendarSummary.mockResolvedValue([]);
 
     render(
       await KalenderAdminPage({
-        searchParams: { year: "2027" },
+        searchParams: Promise.resolve({ year: "2027" }),
       }),
     );
 
-    expect(screen.getByText("Tersedia")).toBeTruthy();
-    expect(screen.getByText("Pending")).toBeTruthy();
-    expect(screen.getByText("Terisi")).toBeTruthy();
-    expect(screen.getByText("Selesai")).toBeTruthy();
+    expect(screen.getByText("Diterima")).toBeTruthy();
+    expect(screen.getByText("Menunggu")).toBeTruthy();
+    expect(screen.getByText("Dibatalkan")).toBeTruthy();
+  });
+
+  it("mengarahkan ?bulan=YYYY-MM ke tampilan bulan", async () => {
+    getYearCalendarSummary.mockResolvedValue([]);
+
+    await expect(
+      KalenderAdminPage({
+        searchParams: Promise.resolve({ bulan: "2027-03" }),
+      }),
+    ).rejects.toThrow("REDIRECT:/admin/kalender/2027/03");
   });
 });
