@@ -47,37 +47,40 @@ async function signInAsAdmin(): Promise<void> {
 }
 
 describe("halaman dashboard /admin", () => {
-  it("menampilkan dashboard bulan berjalan untuk sesi valid", async () => {
+  it("menampilkan dashboard tahun berjalan untuk sesi valid", async () => {
     await signInAsAdmin();
 
     render(await AdminPage({ searchParams: Promise.resolve({}) }));
 
+    const currentYear = todayInJakarta().slice(0, 4);
     expect(
-      screen.getByRole("heading", { name: "Ringkasan Reservasi" }),
+      screen.getByRole("heading", {
+        name: `Ringkasan Tahun ${currentYear}`,
+      }),
     ).toBeTruthy();
-    expect(screen.getByTestId("dashboard-active-count").textContent).toBe("0");
+    expect(screen.getByTestId("dashboard-total").textContent).toBe("0");
     expect(screen.getByText("Belum ada agenda")).toBeTruthy();
     expect(screen.getByText("Tidak ada tindak lanjut")).toBeTruthy();
     expect(screen.getByText("Belum ada reservasi")).toBeTruthy();
 
-    const monthInput = screen.getByLabelText("Filter bulan");
-    expect((monthInput as HTMLInputElement).value).toBe(
-      todayInJakarta().slice(0, 7),
-    );
+    const yearInput = screen.getByLabelText("Filter tahun");
+    expect((yearInput as HTMLSelectElement).value).toBe(currentYear);
   }, 30000);
 
-  it("memakai bulan dari parameter ?bulan=", async () => {
+  it("memakai tahun dan bulan agenda dari parameter URL", async () => {
     await signInAsAdmin();
 
     render(
       await AdminPage({
-        searchParams: Promise.resolve({ bulan: "2027-03" }),
+        searchParams: Promise.resolve({ tahun: "2027", agenda: "2027-03" }),
       }),
     );
 
+    const yearInput = screen.getByLabelText("Filter tahun");
+    expect((yearInput as HTMLSelectElement).value).toBe("2027");
     const monthInput = screen.getByLabelText("Filter bulan");
-    expect((monthInput as HTMLInputElement).value).toBe("2027-03");
-    expect(screen.getByText("Maret 2027")).toBeTruthy();
+    expect((monthInput as HTMLSelectElement).value).toBe("2027-03");
+    expect(screen.getByText(/Maret 2027/)).toBeTruthy();
   }, 30000);
 
   it("tidak dapat diakses tanpa sesi valid (dialihkan ke /login)", async () => {

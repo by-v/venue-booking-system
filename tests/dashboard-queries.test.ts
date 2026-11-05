@@ -1,4 +1,3 @@
-import { eq } from "drizzle-orm";
 import { describe, expect, it } from "vitest";
 
 import { db } from "@/lib/db";
@@ -8,8 +7,8 @@ import {
   packageTable,
   payment,
   reservation,
+  reservationItem,
 } from "@/lib/db/schema";
-import { addDays, todayInJakarta } from "@/modules/availability/dates";
 import { getDashboardData } from "@/modules/reservation/queries";
 import type { ReservationStatus } from "@/modules/reservation/types";
 
@@ -21,11 +20,6 @@ interface SeedReservationOptions {
   eventDate: string;
   perluPemeriksaanAdmin?: boolean;
   bookingNumber?: string;
-}
-
-function nextMonthOf(month: string): string {
-  const [year, monthNumber] = month.split("-").map(Number);
-  return new Date(Date.UTC(year, monthNumber, 1)).toISOString().slice(0, 7);
 }
 
 async function seedPackage(): Promise<void> {
@@ -76,14 +70,16 @@ async function seedReservation({
   });
 }
 
+const YEAR = 2031;
+const MONTH = `${YEAR}-05`;
+const NEXT_MONTH = `${YEAR}-07`;
+const NEXT_YEAR = `${YEAR + 1}`;
+
 describe("query dashboard", () => {
-  it("menghitung ringkasan, agenda, tindak lanjut, dan reservasi terbaru per bulan", async () => {
+  it("menghitung statistik, agenda, tindak lanjut, dan reservasi terbaru per tahun", async () => {
     await seedPackage();
 
-    const today = todayInJakarta();
-    const month = addDays(today, 35).slice(0, 7);
-    const nextMonth = nextMonthOf(month);
-    const date = (day: string) => `${month}-${day}`;
+    const date = (day: string) => `${MONTH}-${day}`;
 
     await seedReservation({
       id: "res-pending",
@@ -106,7 +102,7 @@ describe("query dashboard", () => {
       status: "DITERIMA",
       eventDate: date("10"),
       perluPemeriksaanAdmin: true,
-      bookingNumber: "HADCC-2026-0001",
+      bookingNumber: "HADCC-2031-0001",
     });
     await seedReservation({
       id: "res-accepted-2",
@@ -114,7 +110,7 @@ describe("query dashboard", () => {
       whatsapp: "6281377778888",
       status: "DITERIMA",
       eventDate: date("05"),
-      bookingNumber: "HADCC-2026-0002",
+      bookingNumber: "HADCC-2031-0002",
     });
     await seedReservation({
       id: "res-cancelled",
@@ -142,8 +138,16 @@ describe("query dashboard", () => {
       name: "Lina Marlina",
       whatsapp: "6281244445555",
       status: "DITERIMA",
-      eventDate: `${nextMonth}-05`,
-      bookingNumber: "HADCC-2026-0003",
+      eventDate: `${NEXT_MONTH}-05`,
+      bookingNumber: "HADCC-2031-0003",
+    });
+    await seedReservation({
+      id: "res-next-year",
+      name: "Hendra Wijaya",
+      whatsapp: "6281266667777",
+      status: "DITERIMA",
+      eventDate: `${NEXT_YEAR}-05-05`,
+      bookingNumber: "HADCC-2031-0004",
     });
 
     await db.insert(dateLock).values([
@@ -164,23 +168,49 @@ describe("query dashboard", () => {
       },
     ]);
 
-    const dashboard = await getDashboardData(month);
+    await db.insert(reservationItem).values({
+      id: "item-accepted-1",
+      reservationId: "res-accepted-1",
+      description: "Dekorasi tambahan",
+      amountRupiah: 2_000_000,
+    });
+    await db.insert(payment).values({
+      id: "payment-accepted-1",
+      reservationId: "res-accepted-1",
+      amountRupiah: 5_000_000,
+      verificationStatus: "TERVERIFIKASI",
+    });
 
-    expect(dashboard.month).toBe(month);
-    expect(dashboard.activeCount).toBe(4);
-    expect(dashboard.statusCards).toEqual({
+    const dashboard = await getDashboardData(YEAR, MONTH);
+
+    expect(dashboard.year).toBe(YEAR);
+    expect(dashboard.agendaMonth).toBe(MONTH);
+    expect(dashboard.availableYears).toContain(YEAR);
+    expect(dashboard.availableYears).toContain(YEAR + 1);
+
+    expect(dashboard.stats).toMatchObject({
+      total: 8,
       pending: 1,
       suspended: 1,
-      accepted: 2,
+      accepted: 3,
+      completed: 1,
       cancelled: 2,
     });
+    expect(dashboard.stats.acceptedValueRupiah).toBe(82_000_000);
+    expect(dashboard.stats.verifiedPaymentRupiah).toBe(5_000_000);
+    expect(dashboard.stats.remainingRupiah).toBe(77_000_000);
+    expect(dashboard.stats.conversionPercent).toBe(50);
+    expect(dashboard.stats.averageValueRupiah).toBe(20_500_000);
 
     expect(dashboard.agenda.map((row) => row.id)).toEqual([
       "res-accepted-2",
+      "res-finished",
       "res-accepted-1",
     ]);
+    expect(dashboard.agenda[0]?.status).toBe("DITERIMA");
+    expect(dashboard.agenda[1]?.status).toBe("SELESAI");
     expect(dashboard.agenda[0]?.setupDates).toEqual([date("04")]);
-    expect(dashboard.agenda[1]?.setupDates).toEqual([date("08"), date("09")]);
+    expect(dashboard.agenda[2]?.setupDates).toEqual([date("08"), date("09")]);
 
     const followUps = new Map(
       dashboard.followUps.map((row) => [row.id, row]),
@@ -195,63 +225,57 @@ describe("query dashboard", () => {
     ]);
 
     expect(dashboard.recentReservations.map((row) => row.id)).toEqual([
+      "res-next-month",
       "res-accepted-1",
       "res-finished",
       "res-accepted-2",
       "res-auto",
-      "res-cancelled",
     ]);
   });
 
-  it("membatasi ringkasan pada bulan tanggal acara yang dipilih", async () => {
+  it("menampilkan semua agenda setahun saat bulan tidak dipilih", async () => {
     await seedPackage();
 
-    const today = todayInJakarta();
-    const month = addDays(today, 35).slice(0, 7);
-    const nextMonth = nextMonthOf(month);
-
     await seedReservation({
-      id: "res-current",
+      id: "res-month-one",
       name: "Siti Aminah",
       whatsapp: "6281234567890",
-      status: "PENDING",
-      eventDate: `${month}-10`,
+      status: "DITERIMA",
+      eventDate: `${YEAR}-02-10`,
+      bookingNumber: "HADCC-2031-1001",
     });
     await seedReservation({
-      id: "res-next",
+      id: "res-month-two",
       name: "Budi Santoso",
       whatsapp: "6281311112222",
+      status: "SELESAI",
+      eventDate: `${YEAR}-08-10`,
+    });
+    await seedReservation({
+      id: "res-other-year",
+      name: "Hendra Wijaya",
+      whatsapp: "6281266667777",
       status: "DITERIMA",
-      eventDate: `${nextMonth}-10`,
-      bookingNumber: "HADCC-2026-0001",
+      eventDate: `${NEXT_YEAR}-02-10`,
+      bookingNumber: "HADCC-2031-1002",
     });
-    await db
-      .update(reservation)
-      .set({ createdAt: new Date(`${nextMonth}-01T03:00:00Z`) })
-      .where(eq(reservation.id, "res-current"));
 
-    const currentMonth = await getDashboardData(month);
-    expect(currentMonth.activeCount).toBe(1);
-    expect(currentMonth.statusCards).toEqual({
-      pending: 1,
-      suspended: 0,
-      accepted: 0,
-      cancelled: 0,
-    });
-    expect(currentMonth.agenda).toHaveLength(0);
-    expect(currentMonth.recentReservations.map((row) => row.id)).toEqual([
-      "res-current",
+    const dashboard = await getDashboardData(YEAR);
+
+    expect(dashboard.agendaMonth).toBeNull();
+    expect(dashboard.agenda.map((row) => row.id)).toEqual([
+      "res-month-one",
+      "res-month-two",
     ]);
+    expect(dashboard.stats.total).toBe(2);
+    expect(dashboard.stats.accepted).toBe(1);
+    expect(dashboard.stats.completed).toBe(1);
+    expect(dashboard.stats.conversionPercent).toBe(100);
+  });
 
-    const next = await getDashboardData(nextMonth);
-    expect(next.activeCount).toBe(1);
-    expect(next.statusCards).toEqual({
-      pending: 0,
-      suspended: 0,
-      accepted: 1,
-      cancelled: 0,
-    });
-    expect(next.agenda.map((row) => row.id)).toEqual(["res-next"]);
-    expect(next.recentReservations.map((row) => row.id)).toEqual(["res-next"]);
+  it("mengabaikan bulan agenda yang bukan bagian dari tahun terpilih", async () => {
+    const dashboard = await getDashboardData(YEAR, `${NEXT_YEAR}-02`);
+    expect(dashboard.agendaMonth).toBeNull();
+    expect(dashboard.agenda).toHaveLength(0);
   });
 });

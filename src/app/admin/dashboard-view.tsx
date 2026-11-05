@@ -8,14 +8,13 @@ import {
   Card,
   EmptyState,
   ErrorState,
-  Input,
+  Select,
   Skeleton,
 } from "@/components/ui";
-import { formatRupiah } from "@/lib/format";
+import { formatNumber, formatRupiah } from "@/lib/format";
 import type {
   DashboardData,
   DashboardFollowUpReason,
-  DashboardStatusCards,
   ReservationStatus,
 } from "@/modules/reservation/types";
 import {
@@ -47,6 +46,21 @@ const MONTH_NAMES = [
   "Desember",
 ] as const;
 
+const MONTH_SHORT_NAMES = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "Mei",
+  "Jun",
+  "Jul",
+  "Agu",
+  "Sep",
+  "Okt",
+  "Nov",
+  "Des",
+] as const;
+
 const STATUS_LABELS: Record<ReservationStatus, string> = {
   PENDING: "Menunggu",
   DITANGGUHKAN: "Ditangguhkan",
@@ -68,41 +82,23 @@ const STATUS_BADGES: Record<
   SELESAI: "accepted",
 };
 
-const ACTIVE_SEGMENTS: Array<{
-  key: "pending" | "suspended" | "accepted";
+const VOLUME_CARDS: Array<{
+  key:
+    | "total"
+    | "pending"
+    | "suspended"
+    | "accepted"
+    | "completed"
+    | "cancelled";
   label: string;
   className: string;
 }> = [
-  { key: "pending", label: "menunggu", className: "bg-gold-500" },
-  { key: "accepted", label: "diterima", className: "bg-emerald-500" },
-  { key: "suspended", label: "ditangguhkan", className: "bg-blue-500" },
-];
-
-const STATUS_CARDS: Array<{
-  key: keyof DashboardStatusCards;
-  label: string;
-  className: string;
-}> = [
-  {
-    key: "pending",
-    label: "Menunggu",
-    className: "bg-status-pending",
-  },
-  {
-    key: "accepted",
-    label: "Diterima",
-    className: "bg-status-accepted",
-  },
-  {
-    key: "suspended",
-    label: "Ditangguhkan",
-    className: "bg-status-suspended",
-  },
-  {
-    key: "cancelled",
-    label: "Dibatalkan",
-    className: "bg-status-cancelled",
-  },
+  { key: "total", label: "Total Job Masuk", className: "bg-white" },
+  { key: "pending", label: "Menunggu", className: "bg-status-pending" },
+  { key: "suspended", label: "Ditangguhkan", className: "bg-status-suspended" },
+  { key: "accepted", label: "Diterima", className: "bg-status-accepted" },
+  { key: "completed", label: "Selesai", className: "bg-white" },
+  { key: "cancelled", label: "Dibatalkan", className: "bg-status-cancelled" },
 ];
 
 const FOLLOW_UP_REASON_LABELS: Record<DashboardFollowUpReason, string> = {
@@ -152,6 +148,36 @@ function WidgetEmpty({
   );
 }
 
+function StatCard({
+  label,
+  value,
+  hint,
+  testId,
+  className = "bg-white",
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  testId?: string;
+  className?: string;
+}) {
+  return (
+    <div
+      data-stat-card={testId}
+      className={`rounded-md p-5 shadow-sm ${className}`}
+    >
+      <p className="text-sm font-medium text-ink">{label}</p>
+      <p
+        data-testid={testId}
+        className="mt-3 font-heading text-3xl font-semibold text-ink"
+      >
+        {value}
+      </p>
+      {hint ? <p className="mt-1 text-xs text-gray-600">{hint}</p> : null}
+    </div>
+  );
+}
+
 export function DashboardView({
   data,
   status,
@@ -165,8 +191,9 @@ export function DashboardView({
 
       {status === "loading" ? (
         <div aria-label="Memuat dashboard" className="space-y-4">
-          <Skeleton className="h-40 w-full" />
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
+            <Skeleton className="h-28 w-full" />
+            <Skeleton className="h-28 w-full" />
             <Skeleton className="h-28 w-full" />
             <Skeleton className="h-28 w-full" />
             <Skeleton className="h-28 w-full" />
@@ -189,160 +216,167 @@ export function DashboardView({
 }
 
 function DashboardContent({ data }: { data: DashboardData }) {
-  const calendarHref = data.month
-    ? `/admin/kalender?bulan=${data.month}`
-    : "/admin/kalender";
-  const composition = ACTIVE_SEGMENTS.map(
-    (segment) => `${data.statusCards[segment.key]} ${segment.label}`,
-  ).join(", ");
+  const { stats } = data;
+  const calendarHref = data.agendaMonth
+    ? `/admin/kalender/${data.agendaMonth.slice(0, 4)}/${data.agendaMonth.slice(5, 7)}`
+    : `/admin/kalender?year=${data.year}`;
+
+  const groupedAgenda = new Map<string, typeof data.agenda>();
+  if (data.agendaMonth === null) {
+    for (const item of data.agenda) {
+      const month = item.eventDate.slice(0, 7);
+      const items = groupedAgenda.get(month) ?? [];
+      items.push(item);
+      groupedAgenda.set(month, items);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
       <Card>
-        <div className="flex flex-wrap items-start justify-between gap-5">
+        <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h2 className="font-heading text-lg font-semibold text-ink">
-              Ringkasan Reservasi
+              Ringkasan Tahun {data.year}
             </h2>
-            <div className="mt-4 flex flex-wrap items-baseline gap-2">
-              <span
-                data-testid="dashboard-active-count"
-                className="font-heading text-4xl font-semibold text-ink"
-              >
-                {data.activeCount}
-              </span>
-              <span className="text-sm text-gray-600">reservasi aktif</span>
-            </div>
-            <p className="mt-1 text-xs text-gray-600">
-              {data.statusCards.pending} menunggu ·{" "}
-              {data.statusCards.suspended} ditangguhkan ·{" "}
-              {data.statusCards.accepted} diterima
+            <p className="mt-1 text-sm text-gray-600">
+              Semua widget mengikuti tahun acara yang dipilih.
             </p>
           </div>
 
           <form action="/admin" method="get" className="flex items-end gap-2">
-            <div className="min-w-44">
-              <Input
-                label="Filter bulan"
-                name="bulan"
-                type="month"
-                defaultValue={data.month ?? ""}
-              />
+            <div className="min-w-36">
+              <Select label="Filter tahun" name="tahun" defaultValue={data.year}>
+                {data.availableYears.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </Select>
             </div>
             <Button type="submit" variant="outline">
               Terapkan
             </Button>
           </form>
         </div>
-
-        <div
-          role="img"
-          aria-label={`Komposisi status aktif: ${composition}`}
-          className="mt-6 flex h-2.5 overflow-hidden rounded-full bg-gray-300"
-        >
-          {data.activeCount > 0
-            ? ACTIVE_SEGMENTS.map((segment) => (
-                <span
-                  key={segment.key}
-                  data-status-segment={segment.key}
-                  className={segment.className}
-                  style={{
-                    width: `${(data.statusCards[segment.key] / data.activeCount) * 100}%`,
-                  }}
-                />
-              ))
-            : null}
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-gray-600">
-          {ACTIVE_SEGMENTS.map((segment) => (
-            <span key={segment.key} className="flex items-center gap-2">
-              <span
-                aria-hidden="true"
-                className={`inline-block h-2.5 w-2.5 rounded-full ${segment.className}`}
-              />
-              {data.statusCards[segment.key]} {segment.label}
-            </span>
-          ))}
-          {data.month ? (
-            <span className="ml-auto font-medium text-ink">
-              {monthLabel(data.month)}
-            </span>
-          ) : null}
-        </div>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {STATUS_CARDS.map((card) => (
-          <div
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
+        {VOLUME_CARDS.map((card) => (
+          <StatCard
             key={card.key}
-            data-status-card={card.key}
-            className={`rounded-md p-5 ${card.className}`}
-          >
-            <p className="text-sm font-medium text-ink">{card.label}</p>
-            <p className="mt-3 font-heading text-3xl font-semibold text-ink">
-              {data.statusCards[card.key]}
-            </p>
-          </div>
+            label={card.label}
+            value={formatNumber(stats[card.key])}
+            testId={`dashboard-${card.key}`}
+            className={card.className}
+          />
         ))}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-        <Card>
-          <div className="flex items-center justify-between gap-3">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <StatCard
+          label="Nilai Diterima"
+          value={formatRupiah(stats.acceptedValueRupiah)}
+          hint="Paket + item biaya (Diterima & Selesai)"
+          testId="dashboard-accepted-value"
+        />
+        <StatCard
+          label="Pembayaran Masuk / DP"
+          value={formatRupiah(stats.verifiedPaymentRupiah)}
+          hint="Pembayaran terverifikasi"
+          testId="dashboard-verified-payment"
+        />
+        <StatCard
+          label="Sisa Piutang"
+          value={formatRupiah(stats.remainingRupiah)}
+          hint="Nilai diterima − pembayaran masuk"
+          testId="dashboard-remaining"
+        />
+        <StatCard
+          label="Konversi"
+          value={`${stats.conversionPercent}%`}
+          hint="Diterima & Selesai ÷ total masuk"
+          testId="dashboard-conversion"
+        />
+        <StatCard
+          label="Rata-rata Nilai"
+          value={formatRupiah(stats.averageValueRupiah)}
+          hint="Per reservasi diterima/selesai"
+          testId="dashboard-average-value"
+        />
+      </div>
+
+      <Card>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
             <h2 className="font-heading text-lg font-semibold text-ink">
-              Agenda Mendatang
+              Agenda Reservasi {data.year}
             </h2>
+            <p className="mt-1 text-xs text-gray-600">
+              {data.agendaMonth
+                ? monthLabel(data.agendaMonth)
+                : "Semua bulan"}{" "}
+              · {data.agenda.length} agenda
+            </p>
+          </div>
+          <div className="flex flex-wrap items-end gap-2">
+            <form action="/admin" method="get" className="flex items-end gap-2">
+              <input type="hidden" name="tahun" value={data.year} />
+              <div className="min-w-36">
+                <Select
+                  label="Filter bulan"
+                  name="agenda"
+                  defaultValue={data.agendaMonth ?? ""}
+                >
+                  <option value="">Semua bulan</option>
+                  {MONTH_NAMES.map((name, index) => {
+                    const value = `${data.year}-${String(index + 1).padStart(2, "0")}`;
+                    return (
+                      <option key={value} value={value}>
+                        {name}
+                      </option>
+                    );
+                  })}
+                </Select>
+              </div>
+              <Button type="submit" variant="outline">
+                Terapkan
+              </Button>
+            </form>
             <Link
               href={calendarHref}
-              className="text-xs font-medium text-gold-700 underline"
+              className="pb-2 text-xs font-medium text-gold-700 underline"
             >
-              Lihat Kalender
+              Lihat semua
             </Link>
           </div>
+        </div>
 
-          {data.agenda.length === 0 ? (
-            <WidgetEmpty
-              title="Belum ada agenda"
-              description="Agenda reservasi diterima yang akan datang akan tampil di sini."
-            />
-          ) : (
-            <ul className="mt-4 divide-y divide-gray-300">
-              {data.agenda.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex flex-wrap items-start justify-between gap-3 py-3 first:pt-0 last:pb-0"
-                >
-                  <div className="min-w-52 flex-1">
-                    <Link
-                      href={`/admin/reservasi/${encodeURIComponent(item.id)}`}
-                      className="font-medium text-ink underline-offset-2 hover:underline"
-                    >
-                      {item.customerName}
-                    </Link>
-                    <p className="mt-1 text-xs text-gray-600">
-                      {eventTypeLabel(item.eventType)} · {item.packageName}
-                    </p>
-                    {item.setupDates.length > 0 ? (
-                      <p className="mt-1 text-xs text-gray-600">
-                        Setup: {item.setupDates.map(formatDate).join(", ")}
-                      </p>
-                    ) : null}
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-ink">
-                      {formatDate(item.eventDate)}
-                    </p>
-                    <p className="mt-1">
-                      <Badge status="accepted">Diterima</Badge>
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
+        {data.agenda.length === 0 ? (
+          <WidgetEmpty
+            title="Belum ada agenda"
+            description="Reservasi diterima dan selesai pada periode ini akan tampil di sini."
+          />
+        ) : data.agendaMonth === null ? (
+          <div className="mt-4 space-y-6">
+            {Array.from(groupedAgenda.entries()).map(([month, items]) => (
+              <div key={month}>
+                <h3 className="text-sm font-semibold text-ink">
+                  {MONTH_NAMES[Number(month.slice(5, 7)) - 1]}{" "}
+                  <span className="font-normal text-gray-600">
+                    ({items.length})
+                  </span>
+                </h3>
+                <AgendaList items={items} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <AgendaList items={data.agenda} />
+        )}
+      </Card>
 
+      <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         <Card>
           <div className="flex items-center justify-between gap-3">
             <h2 className="font-heading text-lg font-semibold text-ink">
@@ -391,90 +425,102 @@ function DashboardContent({ data }: { data: DashboardData }) {
             </ul>
           )}
         </Card>
-      </div>
 
-      <Card>
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="font-heading text-lg font-semibold text-ink">
-            Reservasi Terbaru
-          </h2>
-          <Link
-            href="/admin/reservasi"
-            className="text-xs font-medium text-gold-700 underline"
-          >
-            Lihat Semua
-          </Link>
-        </div>
-
-        {data.recentReservations.length === 0 ? (
-          <WidgetEmpty
-            title="Belum ada reservasi"
-            description="Reservasi yang masuk akan tampil di sini."
-          />
-        ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[760px] text-left text-sm">
-              <caption className="sr-only">Reservasi terbaru</caption>
-              <thead className="text-gray-600">
-                <tr>
-                  <th className="py-2 pr-4">Customer</th>
-                  <th className="py-2 pr-4">Paket</th>
-                  <th className="py-2 pr-4">Tanggal Acara</th>
-                  <th className="py-2 pr-4">Total</th>
-                  <th className="py-2 pr-4">Status</th>
-                  <th className="py-2">Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.recentReservations.map((reservation) => (
-                  <tr
-                    key={reservation.id}
-                    className="border-t border-gray-300 align-top"
-                  >
-                    <td className="py-3 pr-4">
-                      <Link
-                        href={`/admin/reservasi/${encodeURIComponent(reservation.id)}`}
-                        className="font-medium text-ink underline-offset-2 hover:underline"
-                      >
-                        {reservation.customerName}
-                      </Link>
-                      <p className="mt-1 text-xs text-gray-600">
-                        {reservation.customerWhatsapp}
-                      </p>
-                    </td>
-                    <td className="py-3 pr-4">
-                      <p className="text-ink">{reservation.packageName}</p>
-                      <p className="mt-1 text-xs text-gray-600">
-                        {eventTypeLabel(reservation.eventType)}
-                      </p>
-                    </td>
-                    <td className="py-3 pr-4 text-gray-600">
-                      {formatDate(reservation.eventDate)}
-                    </td>
-                    <td className="py-3 pr-4 text-gray-600">
-                      {formatRupiah(reservation.totalRupiah)}
-                    </td>
-                    <td className="py-3 pr-4">
-                      <Badge status={STATUS_BADGES[reservation.status]}>
-                        {STATUS_LABELS[reservation.status]}
-                      </Badge>
-                    </td>
-                    <td className="py-3">
-                      <Link
-                        href={`/admin/reservasi/${encodeURIComponent(reservation.id)}`}
-                        aria-label={`Detail reservasi ${reservation.customerName}`}
-                        className="text-sm font-medium text-gold-700 underline"
-                      >
-                        Detail
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <Card>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="font-heading text-lg font-semibold text-ink">
+              Reservasi Terbaru
+            </h2>
+            <Link
+              href="/admin/reservasi"
+              className="text-xs font-medium text-gold-700 underline"
+            >
+              Lihat Semua
+            </Link>
           </div>
-        )}
-      </Card>
+
+          {data.recentReservations.length === 0 ? (
+            <WidgetEmpty
+              title="Belum ada reservasi"
+              description="Reservasi yang masuk akan tampil di sini."
+            />
+          ) : (
+            <ul className="mt-4 divide-y divide-gray-300">
+              {data.recentReservations.map((item) => (
+                <li key={item.id} className="py-3 first:pt-0 last:pb-0">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <Link
+                      href={`/admin/reservasi/${encodeURIComponent(item.id)}`}
+                      className="font-medium text-ink underline-offset-2 hover:underline"
+                    >
+                      {item.customerName}
+                    </Link>
+                    <Badge status={STATUS_BADGES[item.status]}>
+                      {STATUS_LABELS[item.status]}
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-xs text-gray-600">
+                    {eventTypeLabel(item.eventType)} · {formatDate(item.eventDate)}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-600">
+                    {formatRupiah(item.totalRupiah)}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      </div>
     </div>
+  );
+}
+
+function AgendaList({
+  items,
+}: {
+  items: DashboardData["agenda"];
+}) {
+  return (
+    <ul className="mt-3 divide-y divide-gray-300">
+      {items.map((item) => {
+        const day = item.eventDate.slice(8, 10);
+        const monthName =
+          MONTH_SHORT_NAMES[Number(item.eventDate.slice(5, 7)) - 1];
+        return (
+          <li key={item.id}>
+            <Link
+              href={`/admin/reservasi/${encodeURIComponent(item.id)}`}
+              className="flex flex-wrap items-center gap-4 py-3 first:pt-0 last:pb-0 hover:bg-gold-100/40"
+            >
+              <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-md bg-gold-100">
+                <span className="font-heading text-base font-semibold text-ink">
+                  {day}
+                </span>
+                <span className="text-[10px] uppercase text-gray-600">
+                  {monthName}
+                </span>
+              </div>
+              <div className="min-w-52 flex-1">
+                <p className="font-medium text-ink">{item.customerName}</p>
+                <p className="mt-1 text-xs text-gray-600">
+                  {eventTypeLabel(item.eventType)} · {item.packageName}
+                </p>
+                {item.setupDates.length > 0 ? (
+                  <p className="mt-1 text-xs text-gray-600">
+                    Setup: {item.setupDates.map(formatDate).join(", ")}
+                  </p>
+                ) : null}
+              </div>
+              <Badge status={STATUS_BADGES[item.status]}>
+                {STATUS_LABELS[item.status]}
+              </Badge>
+              <span aria-hidden="true" className="text-gray-600">
+                →
+              </span>
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

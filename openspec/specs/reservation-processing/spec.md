@@ -221,7 +221,7 @@ Setiap penambahan item biaya, pencatatan pembayaran, perubahan status pembayaran
 
 ### Requirement: Dashboard operasional
 
-Dashboard admin SHALL menampilkan jumlah reservasi aktif (`PENDING` + `DITERIMA` + `DITANGGUHKAN`), empat kartu status (`PENDING`, `DITANGGUHKAN`, `DITERIMA`, `DIBATALKAN` termasuk `AUTO_CANCELLED`), agenda `DITERIMA` mendatang terurut tanggal acara, daftar perlu tindak lanjut, dan reservasi terbaru dari data nyata. Ringkasan SHALL dapat difilter per bulan berdasarkan tanggal acara.
+Dashboard admin SHALL menampilkan statistik volume per tahun berdasarkan tanggal acara (`Total Job Masuk`, `PENDING`, `DITANGGUHKAN`, `DITERIMA`, `SELESAI`, dan `DIBATALKAN` termasuk `AUTO_CANCELLED`), statistik finansial dan insight (`Nilai Diterima`, `Pembayaran Masuk`, `Sisa Piutang`, `Konversi`, dan `Rata-rata Nilai`) untuk reservasi `DITERIMA` + `SELESAI`, agenda `DITERIMA` + `SELESAI` terurut tanggal acara, daftar perlu tindak lanjut, dan reservasi terbaru dari data nyata. Filter periode utama SHALL berupa tahun dan berlaku untuk seluruh widget. Agenda SHALL dapat difilter per bulan di dalam tahun terpilih dan setiap baris agenda SHALL menautkan ke detail reservasi.
 
 **Jejak:** US-054; `docs/design/ui-spec.md` 4.2 (Dashboard)
 
@@ -230,25 +230,30 @@ Dashboard admin SHALL menampilkan jumlah reservasi aktif (`PENDING` + `DITERIMA`
 - **WHEN** belum ada reservasi
 - **THEN** dashboard menampilkan angka nol dan keadaan kosong pada setiap widget
 
-#### Scenario: Jumlah aktif tidak menghitung status akhir
+#### Scenario: Filter tahun berlaku untuk semua widget
 
-- **WHEN** data berisi reservasi `PENDING`, `DITANGGUHKAN`, `DITERIMA`, `DIBATALKAN`, dan `AUTO_CANCELLED`
-- **THEN** jumlah aktif hanya menghitung `PENDING`, `DITANGGUHKAN`, dan `DITERIMA`
+- **WHEN** admin memilih tahun tertentu
+- **THEN** kartu statistik, agenda, tindak lanjut, dan reservasi terbaru hanya menghitung reservasi dengan tanggal acara pada tahun itu
+
+#### Scenario: Statistik finansial hanya menghitung reservasi berhasil
+
+- **WHEN** tahun terpilih berisi reservasi `DITERIMA`, `SELESAI`, `PENDING`, dan `DIBATALKAN`
+- **THEN** `Nilai Diterima` menjumlahkan harga paket dan item biaya hanya untuk `DITERIMA` + `SELESAI`, `Pembayaran Masuk` menjumlahkan pembayaran `TERVERIFIKASI` pada reservasi yang sama, dan `Sisa Piutang` adalah selisih keduanya
 
 #### Scenario: Perlu tindak lanjut
 
-- **WHEN** data berisi reservasi `PENDING` dan reservasi bertanda perlu pemeriksaan
+- **WHEN** tahun terpilih berisi reservasi `PENDING` dan reservasi bertanda perlu pemeriksaan
 - **THEN** keduanya tampil pada widget perlu tindak lanjut
 
-#### Scenario: Agenda mendatang
+#### Scenario: Agenda per tahun dan bulan
 
-- **WHEN** terdapat lebih dari satu reservasi `DITERIMA` dengan tanggal acara berbeda
-- **THEN** agenda menampilkan reservasi `DITERIMA` yang belum lewat, terurut tanggal acara menaik
+- **WHEN** admin memilih tahun dan/atau bulan agenda
+- **THEN** agenda menampilkan seluruh reservasi `DITERIMA` + `SELESAI` pada periode itu, terurut tanggal acara menaik, dan tombol lihat semua menuju kalender bulan terkait atau kalender tahun bila semua bulan dipilih
 
-#### Scenario: Filter bulan
+#### Scenario: Agenda dapat dibuka
 
-- **WHEN** admin memilih bulan tertentu
-- **THEN** ringkasan menghitung reservasi dengan tanggal acara pada bulan itu
+- **WHEN** admin mengklik baris agenda
+- **THEN** admin diarahkan ke halaman detail reservasi tersebut
 
 ### Requirement: Akses admin untuk pengolahan reservasi
 

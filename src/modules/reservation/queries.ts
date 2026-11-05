@@ -1,7 +1,6 @@
 import {
   and,
   asc,
-  count,
   desc,
   eq,
   gte,
@@ -78,7 +77,6 @@ import type {
  * nomor booking; daftar bentrok konfirmasi mengikuti design D5.
  */
 
-const DASHBOARD_AGENDA_LIMIT = 10;
 const DASHBOARD_RECENT_LIMIT = 5;
 const CONFLICT_STATUSES: ReservationStatus[] = [
   "PENDING",
@@ -162,11 +160,23 @@ function monthCondition(month?: string): SQL | undefined {
   );
 }
 
+function yearCondition(year?: number): SQL | undefined {
+  if (year === undefined || !Number.isInteger(year)) {
+    return undefined;
+  }
+
+  return and(
+    gte(reservation.eventDate, `${year}-01-01`),
+    lt(reservation.eventDate, `${year + 1}-01-01`),
+  );
+}
+
 function listConditions(input: ReservationListQuery): SQL | undefined {
   return and(
     statusCondition(input.filter ?? "proses"),
     searchCondition(input.search),
     monthCondition(input.month),
+    yearCondition(input.year),
   );
 }
 
@@ -650,22 +660,20 @@ export async function getReservationConfirmationContext(
   };
 }
 
-export async function getDashboardData(month?: string): Promise<DashboardData> {
-  const parsedMonth = monthSchema.safeParse(month);
-  const monthValue = parsedMonth.success ? parsedMonth.data : null;
+export async function getDashboardData(
+  year: number,
+  agendaMonth?: string | null,
+): Promise<DashboardData> {
+  const parsedMonth = monthSchema.safeParse(agendaMonth);
+  const monthValue =
+    parsedMonth.success && parsedMonth.data.startsWith(`${year}-`)
+      ? parsedMonth.data
+      : null;
   const filterMonth = monthValue ?? undefined;
-  const today = todayInJakarta();
 
-  const [statusCountRows, agendaRows, followUpRows, recentReservations] =
+  const [allReservations, agendaRows, followUpRows, yearRows] =
     await Promise.all([
-      db
-        .select({
-          status: reservation.status,
-          total: count(),
-        })
-        .from(reservation)
-        .where(monthCondition(filterMonth))
-        .groupBy(reservation.status),
+      queryReservationList({ filter: "semua", year }),
       db
         .select({
           id: reservation.id,
@@ -674,18 +682,18 @@ export async function getDashboardData(month?: string): Promise<DashboardData> {
           eventDate: reservation.eventDate,
           eventType: reservation.eventType,
           packageName: reservation.packageName,
+          status: reservation.status,
         })
         .from(reservation)
         .innerJoin(customer, eq(reservation.customerId, customer.id))
         .where(
           and(
-            eq(reservation.status, "DITERIMA"),
-            gte(reservation.eventDate, today),
+            inArray(reservation.status, ["DITERIMA", "SELESAI"]),
+            yearCondition(year),
             monthCondition(filterMonth),
           ),
         )
-        .orderBy(asc(reservation.eventDate), asc(reservation.createdAt))
-        .limit(DASHBOARD_AGENDA_LIMIT),
+        .orderBy(asc(reservation.eventDate), asc(reservation.createdAt)),
       db
         .select({
           id: reservation.id,
@@ -700,7 +708,7 @@ export async function getDashboardData(month?: string): Promise<DashboardData> {
         .innerJoin(customer, eq(reservation.customerId, customer.id))
         .where(
           and(
-            monthCondition(filterMonth),
+            yearCondition(year),
             or(
               eq(reservation.status, "PENDING"),
               eq(reservation.perluPemeriksaanAdmin, true),
@@ -708,10 +716,12 @@ export async function getDashboardData(month?: string): Promise<DashboardData> {
           ),
         )
         .orderBy(desc(reservation.createdAt)),
-      queryReservationList(
-        { filter: "semua", month: filterMonth },
-        DASHBOARD_RECENT_LIMIT,
-      ),
+      db
+        .select({
+          year: sql<number>`extract(year from ${reservation.eventDate})::int`,
+        })
+        .from(reservation)
+        .groupBy(sql`extract(year from ${reservation.eventDate})`),
     ]);
 
   const agendaIds = agendaRows.map((row) => row.id);
@@ -745,19 +755,40 @@ export async function getDashboardData(month?: string): Promise<DashboardData> {
   const agenda: ReservationAgendaItem[] = agendaRows.map((row) => ({
     ...row,
     eventType: row.eventType as GalleryCategory,
+    status: row.status as ReservationStatus,
     setupDates: setupByReservation.get(row.id) ?? [],
   }));
 
   const counts = new Map<string, number>();
-  for (const row of statusCountRows) {
-    counts.set(row.status, Number(row.total));
+  for (const row of allReservations) {
+    counts.set(row.status, (counts.get(row.status) ?? 0) + 1);
   }
 
   const pending = counts.get("PENDING") ?? 0;
   const suspended = counts.get("DITANGGUHKAN") ?? 0;
   const accepted = counts.get("DITERIMA") ?? 0;
+  const completed = counts.get("SELESAI") ?? 0;
   const cancelled =
     (counts.get("DIBATALKAN") ?? 0) + (counts.get("AUTO_CANCELLED") ?? 0);
+  const total = allReservations.length;
+  const successful = accepted + completed;
+
+  const successfulReservations = allReservations.filter(
+    (row) => row.status === "DITERIMA" || row.status === "SELESAI",
+  );
+  const acceptedValueRupiah = successfulReservations.reduce(
+    (sumValue, row) => sumValue + row.totalRupiah,
+    0,
+  );
+  const verifiedPaymentRupiah = successfulReservations.reduce(
+    (sumValue, row) => sumValue + row.verifiedPaymentRupiah,
+    0,
+  );
+  const remainingRupiah = acceptedValueRupiah - verifiedPaymentRupiah;
+  const conversionPercent =
+    total === 0 ? 0 : Math.round((successful / total) * 100);
+  const averageValueRupiah =
+    successful === 0 ? 0 : Math.round(acceptedValueRupiah / successful);
 
   const followUps: DashboardFollowUpItem[] = followUpRows.map((row) => {
     const reasons: DashboardFollowUpReason[] = [];
@@ -780,17 +811,34 @@ export async function getDashboardData(month?: string): Promise<DashboardData> {
     };
   });
 
+  const currentYear = Number(todayInJakarta().slice(0, 4));
+  const availableYears = Array.from(
+    new Set([
+      ...yearRows.map((row) => Number(row.year)),
+      currentYear,
+      year,
+    ]),
+  ).sort((a, b) => a - b);
+
   return {
-    month: monthValue,
-    activeCount: pending + suspended + accepted,
-    statusCards: {
+    year,
+    agendaMonth: monthValue,
+    availableYears,
+    stats: {
+      total,
       pending,
       suspended,
       accepted,
+      completed,
       cancelled,
+      acceptedValueRupiah,
+      verifiedPaymentRupiah,
+      remainingRupiah,
+      conversionPercent,
+      averageValueRupiah,
     },
     agenda,
     followUps,
-    recentReservations,
+    recentReservations: allReservations.slice(0, DASHBOARD_RECENT_LIMIT),
   };
 }

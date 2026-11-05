@@ -128,6 +128,7 @@ export interface ReservationListQuery {
   filter?: ReservationListFilter;
   search?: string;
   month?: string;
+  year?: number;
 }
 
 export interface ReservationListItem {
@@ -245,6 +246,7 @@ export interface ReservationAgendaItem {
   eventDate: string;
   eventType: GalleryCategory;
   packageName: string;
+  status: ReservationStatus;
   setupDates: string[];
 }
 
@@ -266,17 +268,25 @@ export interface DashboardFollowUpItem {
   reasons: DashboardFollowUpReason[];
 }
 
-export interface DashboardStatusCards {
+export interface DashboardStats {
+  total: number;
   pending: number;
   suspended: number;
   accepted: number;
+  completed: number;
   cancelled: number;
+  acceptedValueRupiah: number;
+  verifiedPaymentRupiah: number;
+  remainingRupiah: number;
+  conversionPercent: number;
+  averageValueRupiah: number;
 }
 
 export interface DashboardData {
-  month: string | null;
-  activeCount: number;
-  statusCards: DashboardStatusCards;
+  year: number;
+  agendaMonth: string | null;
+  availableYears: number[];
+  stats: DashboardStats;
   agenda: ReservationAgendaItem[];
   followUps: DashboardFollowUpItem[];
   recentReservations: ReservationListItem[];
