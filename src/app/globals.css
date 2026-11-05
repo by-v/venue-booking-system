@@ -93,6 +93,541 @@
 }
 
 /*
+ * Tema Neumorphism khusus area admin.
+ * Semua aturan di bawah di-scope oleh .admin-neu sehingga halaman publik
+ * tetap memakai tampilan lamanya. Palet memakai hitam (ink), emas, dan putih
+ * seperti tampilan lama; elevasi lembut tetap dibentuk oleh bayangan, bukan
+ * oleh perubahan bentuk atau layout.
+ */
+:root {
+  --neu-bg: #f7f3ec;
+  --neu-surface: #ffffff;
+  --neu-surface-strong: #ffffff;
+  --neu-inset-bg: #f0ebe3;
+  --neu-shadow-dark: rgba(25, 26, 29, 0.13);
+  --neu-shadow-darker: rgba(25, 26, 29, 0.22);
+  --neu-shadow-light: rgba(255, 255, 255, 1);
+  --neu-gold-tint: rgba(199, 164, 106, 0.22);
+  --neu-red-tint: rgba(190, 90, 78, 0.16);
+  --neu-dark-surface: #191a1d;
+  --neu-dark-surface-soft: #24262a;
+  --neu-dark-text: #f7f3ec;
+  --neu-dark-muted: rgba(247, 243, 236, 0.62);
+  --neu-dark-shadow: rgba(0, 0, 0, 0.45);
+  --neu-dark-light: rgba(255, 255, 255, 0.07);
+}
+
+.admin-neu {
+  --gray-300: #e5e7eb;
+  --gray-600: #717784;
+  --line-light: rgba(25, 26, 29, 0.12);
+  --neu-radius: 22px;
+  background-color: var(--neu-bg);
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(255, 255, 255, 0.7), transparent 38%),
+    radial-gradient(circle at 88% 92%, rgba(199, 164, 106, 0.1), transparent 42%);
+  color: var(--ink);
+}
+
+.admin-neu .neu-sidebar {
+  background: var(--neu-dark-surface);
+  color: var(--neu-dark-text);
+  border-radius: 28px;
+  box-shadow:
+    12px 12px 30px rgba(25, 26, 29, 0.28),
+    -12px -12px 30px var(--neu-shadow-light);
+}
+
+.admin-neu .neu-header {
+  background: rgba(255, 255, 255, 0.9);
+  border: 0;
+  border-radius: 20px;
+  box-shadow:
+    6px 6px 18px var(--neu-shadow-dark),
+    -6px -6px 18px var(--neu-shadow-light);
+  backdrop-filter: blur(14px);
+}
+
+.admin-neu .neu-card,
+.admin-neu .ui-card {
+  background: var(--neu-surface);
+  border: 0;
+  border-radius: var(--neu-radius);
+  box-shadow:
+    9px 9px 22px var(--neu-shadow-dark),
+    -9px -9px 22px var(--neu-shadow-light);
+}
+
+.admin-neu .neu-toolbar {
+  background: var(--neu-surface);
+  border-radius: 18px;
+  box-shadow:
+    5px 5px 14px var(--neu-shadow-dark),
+    -5px -5px 14px var(--neu-shadow-light);
+}
+
+.admin-neu .neu-inset,
+.admin-neu .neu-well {
+  background: var(--neu-inset-bg);
+  border: 0;
+  border-radius: 18px;
+  box-shadow:
+    inset 5px 5px 12px var(--neu-shadow-dark),
+    inset -5px -5px 12px var(--neu-shadow-light);
+}
+
+.admin-neu .neu-raised {
+  background: var(--neu-surface);
+  border: 0;
+  border-radius: 18px;
+  box-shadow:
+    5px 5px 14px var(--neu-shadow-dark),
+    -5px -5px 14px var(--neu-shadow-light);
+}
+
+.admin-neu .neu-pill {
+  background: var(--neu-surface);
+  border: 0;
+  border-radius: 999px;
+  box-shadow:
+    4px 4px 10px var(--neu-shadow-dark),
+    -4px -4px 10px var(--neu-shadow-light);
+}
+
+.admin-neu .neu-divider {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(111, 102, 90, 0.22),
+    transparent
+  );
+}
+
+.admin-neu .neu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--neu-surface);
+  color: var(--gold-700);
+  box-shadow:
+    4px 4px 10px var(--neu-shadow-dark),
+    -4px -4px 10px var(--neu-shadow-light);
+}
+
+.admin-neu .neu-nav-item {
+  border-radius: 14px;
+  color: #5f574c;
+  transition:
+    color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.admin-neu .neu-nav-item:hover {
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow:
+    inset 3px 3px 7px rgba(159, 145, 126, 0.22),
+    inset -3px -3px 7px rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+}
+
+.admin-neu .neu-nav-item[aria-current="page"] {
+  background: var(--neu-bg);
+  color: var(--gold-700);
+  box-shadow:
+    inset 4px 4px 10px var(--neu-shadow-dark),
+    inset -4px -4px 10px var(--neu-shadow-light);
+}
+
+/* Sidebar gelap: tetap panel Neumorphism raised, hanya warnanya ink/emas. */
+.admin-neu .neu-sidebar .neu-raised {
+  background: linear-gradient(145deg, #d8b97f, #c7a46a);
+  color: var(--ink);
+  box-shadow:
+    5px 5px 14px rgba(0, 0, 0, 0.42),
+    -4px -4px 12px rgba(255, 255, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.admin-neu .neu-sidebar .neu-raised .neu-icon {
+  background: rgba(25, 26, 29, 0.14);
+  color: var(--ink);
+  box-shadow:
+    inset 3px 3px 8px rgba(25, 26, 29, 0.24),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.32);
+}
+
+.admin-neu .neu-sidebar .neu-raised .neu-overline {
+  color: rgba(25, 26, 29, 0.7);
+}
+
+.admin-neu .neu-sidebar .neu-nav-item {
+  color: var(--neu-dark-muted);
+}
+
+.admin-neu .neu-sidebar .neu-nav-item .neu-icon {
+  background: var(--neu-dark-surface-soft);
+  color: var(--neu-dark-muted);
+  box-shadow:
+    3px 3px 8px rgba(0, 0, 0, 0.36),
+    -3px -3px 8px var(--neu-dark-light);
+}
+
+.admin-neu .neu-sidebar .neu-nav-item:hover {
+  background: var(--neu-dark-surface-soft);
+  color: var(--neu-dark-text);
+  box-shadow:
+    inset 3px 3px 7px rgba(0, 0, 0, 0.36),
+    inset -3px -3px 7px var(--neu-dark-light);
+}
+
+.admin-neu .neu-sidebar .neu-nav-item[aria-current="page"] {
+  background: var(--neu-dark-surface-soft);
+  color: var(--gold-500);
+  box-shadow:
+    inset 4px 4px 10px rgba(0, 0, 0, 0.44),
+    inset -4px -4px 10px var(--neu-dark-light);
+}
+
+.admin-neu .neu-sidebar .neu-nav-item[aria-current="page"] .neu-icon {
+  color: var(--gold-500);
+}
+
+.admin-neu .neu-sidebar .neu-divider {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(247, 243, 236, 0.18),
+    transparent
+  );
+}
+
+.admin-neu .neu-sidebar .neu-overline {
+  color: rgba(247, 243, 236, 0.45);
+}
+
+.admin-neu .neu-sidebar .neu-button-ghost,
+.admin-neu .neu-sidebar .ui-button[data-variant="ghost"] {
+  color: var(--neu-dark-muted);
+}
+
+.admin-neu .neu-sidebar .neu-button-ghost:hover,
+.admin-neu .neu-sidebar .ui-button[data-variant="ghost"]:hover {
+  background: var(--neu-dark-surface-soft);
+  color: var(--neu-dark-text);
+  box-shadow:
+    inset 3px 3px 7px rgba(0, 0, 0, 0.38),
+    inset -3px -3px 7px var(--neu-dark-light);
+}
+
+.admin-neu .neu-button,
+.admin-neu .ui-button {
+  border: 0;
+  border-radius: 14px;
+  background: var(--neu-surface);
+  color: var(--ink);
+  box-shadow:
+    5px 5px 12px var(--neu-shadow-dark),
+    -5px -5px 12px var(--neu-shadow-light);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.admin-neu .neu-button:hover,
+.admin-neu .ui-button:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    7px 7px 16px var(--neu-shadow-dark),
+    -7px -7px 16px var(--neu-shadow-light);
+}
+
+.admin-neu .neu-button:active,
+.admin-neu .ui-button:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 3px 3px 8px var(--neu-shadow-dark),
+    inset -3px -3px 8px var(--neu-shadow-light);
+}
+
+.admin-neu .neu-button-primary,
+.admin-neu .ui-button[data-variant="primary"] {
+  background: linear-gradient(145deg, #dcc39a, #c0a06c);
+  color: #241f19;
+  box-shadow:
+    5px 5px 12px var(--neu-shadow-darker),
+    -5px -5px 12px var(--neu-shadow-light),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.admin-neu .neu-button-primary:hover,
+.admin-neu .ui-button[data-variant="primary"]:hover {
+  background: linear-gradient(145deg, #e2cba5, #c7a875);
+  color: #1e1a15;
+}
+
+.admin-neu .neu-button-ghost,
+.admin-neu .ui-button[data-variant="ghost"] {
+  background: transparent;
+  color: #5f574c;
+  box-shadow: none;
+}
+
+.admin-neu .neu-button-ghost:hover,
+.admin-neu .ui-button[data-variant="ghost"]:hover {
+  background: rgba(255, 255, 255, 0.28);
+  color: var(--ink);
+  box-shadow:
+    inset 3px 3px 7px rgba(159, 145, 126, 0.22),
+    inset -3px -3px 7px rgba(255, 255, 255, 0.72);
+  transform: none;
+}
+
+.admin-neu .neu-button-outline,
+.admin-neu .ui-button[data-variant="outline"] {
+  color: var(--gold-700);
+}
+
+.admin-neu .neu-button:disabled,
+.admin-neu .ui-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow:
+    inset 3px 3px 8px var(--neu-shadow-dark),
+    inset -3px -3px 8px var(--neu-shadow-light);
+}
+
+.admin-neu .ui-input,
+.admin-neu .ui-select,
+.admin-neu .ui-textarea {
+  border-color: transparent;
+  border-radius: 14px;
+  background-color: var(--neu-bg);
+  color: var(--ink);
+  box-shadow:
+    inset 4px 4px 10px var(--neu-shadow-dark),
+    inset -4px -4px 10px var(--neu-shadow-light);
+  transition:
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+}
+
+.admin-neu .ui-input::placeholder,
+.admin-neu .ui-textarea::placeholder {
+  color: #8b8173;
+}
+
+.admin-neu .ui-input:focus,
+.admin-neu .ui-select:focus,
+.admin-neu .ui-textarea:focus {
+  border-color: transparent;
+  outline: none;
+  box-shadow:
+    inset 4px 4px 10px var(--neu-shadow-dark),
+    inset -4px -4px 10px var(--neu-shadow-light),
+    0 0 0 3px var(--neu-gold-tint);
+}
+
+.admin-neu .ui-input[aria-invalid="true"],
+.admin-neu .ui-select[aria-invalid="true"],
+.admin-neu .ui-textarea[aria-invalid="true"] {
+  border-color: #dc6b62;
+  box-shadow:
+    inset 4px 4px 10px var(--neu-shadow-dark),
+    inset -4px -4px 10px var(--neu-shadow-light),
+    0 0 0 3px rgba(220, 107, 98, 0.14);
+}
+
+.admin-neu .ui-input:disabled,
+.admin-neu .ui-select:disabled,
+.admin-neu .ui-textarea:disabled {
+  background-color: #e2dcd3;
+  color: #8b8173;
+}
+
+.admin-neu .ui-badge {
+  border: 0;
+  box-shadow:
+    inset 2px 2px 5px rgba(159, 145, 126, 0.26),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+}
+
+.admin-neu .ui-skeleton {
+  background-color: #ded8ce;
+  border-radius: 18px;
+  box-shadow:
+    inset 3px 3px 8px var(--neu-shadow-dark),
+    inset -3px -3px 8px var(--neu-shadow-light);
+}
+
+.admin-neu .ui-empty {
+  background: var(--neu-inset-bg);
+  border: 0;
+  border-radius: 18px;
+  box-shadow:
+    inset 5px 5px 12px var(--neu-shadow-dark),
+    inset -5px -5px 12px var(--neu-shadow-light);
+}
+
+.admin-neu .ui-error {
+  background: #f1e2de;
+  border: 0;
+  border-radius: 18px;
+  box-shadow:
+    inset 5px 5px 12px rgba(159, 145, 126, 0.34),
+    inset -5px -5px 12px rgba(255, 255, 255, 0.86);
+}
+
+.admin-neu .ui-availability {
+  border: 0;
+  border-radius: 20px;
+  background: var(--neu-surface);
+  box-shadow:
+    7px 7px 18px var(--neu-shadow-dark),
+    -7px -7px 18px var(--neu-shadow-light);
+}
+
+.admin-neu .ui-availability button {
+  border: 0;
+  border-radius: 10px;
+  background: var(--neu-surface);
+  color: var(--ink);
+  box-shadow:
+    3px 3px 7px var(--neu-shadow-dark),
+    -3px -3px 7px var(--neu-shadow-light);
+}
+
+.admin-neu .ui-availability button:not(:disabled):hover {
+  background: var(--gold-100);
+  color: var(--ink);
+  box-shadow:
+    4px 4px 9px var(--neu-shadow-dark),
+    -4px -4px 9px var(--neu-shadow-light);
+}
+
+.admin-neu .ui-availability button[aria-pressed="true"] {
+  background: linear-gradient(145deg, #dcc39a, #c0a06c);
+  color: #241f19;
+  box-shadow:
+    inset 3px 3px 7px rgba(146, 130, 109, 0.5),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.5);
+}
+
+.admin-neu .ui-availability button:disabled {
+  background: var(--neu-inset-bg);
+  color: #9a9184;
+  box-shadow:
+    inset 3px 3px 7px var(--neu-shadow-dark),
+    inset -3px -3px 7px var(--neu-shadow-light);
+}
+
+.admin-neu .neu-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+
+.admin-neu .neu-table thead th {
+  background: rgba(255, 255, 255, 0.32);
+  color: #6f665a;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.admin-neu .neu-table tbody tr td {
+  border-top: 1px solid rgba(111, 102, 90, 0.14);
+}
+
+.admin-neu .neu-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.admin-neu .neu-table-wrap {
+  border-radius: 18px;
+  background: var(--neu-surface);
+  box-shadow:
+    inset 4px 4px 11px var(--neu-shadow-dark),
+    inset -4px -4px 11px var(--neu-shadow-light);
+}
+
+.admin-neu .neu-chip {
+  border: 0;
+  border-radius: 999px;
+  background: var(--neu-surface);
+  color: #5f574c;
+  box-shadow:
+    4px 4px 9px var(--neu-shadow-dark),
+    -4px -4px 9px var(--neu-shadow-light);
+  transition:
+    color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.admin-neu .neu-chip:hover {
+  color: var(--ink);
+  box-shadow:
+    5px 5px 12px var(--neu-shadow-dark),
+    -5px -5px 12px var(--neu-shadow-light);
+}
+
+.admin-neu .neu-chip[aria-pressed="true"],
+.admin-neu .neu-chip[data-active="true"] {
+  color: var(--gold-700);
+  background: var(--neu-bg);
+  box-shadow:
+    inset 3px 3px 8px var(--neu-shadow-dark),
+    inset -3px -3px 8px var(--neu-shadow-light);
+}
+
+.admin-neu .neu-accent-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+}
+
+.admin-neu .neu-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.admin-neu .neu-overline {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7d7366;
+}
+
+.admin-neu .neu-input-check {
+  accent-color: var(--gold-500);
+  width: 1rem;
+  height: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-neu .neu-button,
+  .admin-neu .ui-button,
+  .admin-neu .neu-chip,
+  .admin-neu .ui-input,
+  .admin-neu .ui-select,
+  .admin-neu .ui-textarea,
+  .admin-neu .neu-nav-item {
+    transition: none;
+  }
+}
+
+/*
  * Bukti Booking siap cetak (D6). Navigasi, footer, dan kontrol layar
  * disembunyikan; hanya isi bukti yang dicetak. PDF dihasilkan peramban.
  */

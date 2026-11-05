@@ -260,12 +260,20 @@ export default async function ReservasiDetailPage({
     confirmationContext !== null &&
     !confirmationContext.hasDateConflict;
 
-  let runningPaymentTotal = 0;
-  const paymentRows = reservation.payments.map((rowPayment) => {
-    const paidBefore = runningPaymentTotal;
-    runningPaymentTotal += rowPayment.amountRupiah;
+  const paymentTotals = reservation.payments.reduce<number[]>(
+    (totals, rowPayment) => {
+      const previousTotal =
+        totals.length > 0 ? totals[totals.length - 1] : 0;
+      return [...totals, previousTotal + rowPayment.amountRupiah];
+    },
+    [],
+  );
+
+  const paymentRows = reservation.payments.map((rowPayment, index) => {
+    const paidBefore = index > 0 ? paymentTotals[index - 1] : 0;
+    const runningTotal = paymentTotals[index];
     const kind =
-      runningPaymentTotal >= reservation.financials.totalRupiah
+      runningTotal >= reservation.financials.totalRupiah
         ? "Pelunasan"
         : paidBefore < reservation.financials.minimumDpRupiah
           ? "DP 25%"
@@ -274,17 +282,18 @@ export default async function ReservasiDetailPage({
   });
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-5">
       <div>
         <Link
           href="/admin/reservasi"
-          className="text-sm font-medium text-gold-700 underline"
+          className="neu-button neu-button-ghost px-3 py-1.5 text-sm font-medium"
         >
           ← Kembali ke daftar reservasi
         </Link>
         <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="font-heading text-2xl font-semibold text-ink">
+            <p className="neu-overline">Detail reservasi</p>
+            <h1 className="neu-title mt-1 text-2xl">
               {reservation.customer.name}
             </h1>
             {reservation.bookingNumber ? (
@@ -304,7 +313,7 @@ export default async function ReservasiDetailPage({
             {canEditData ? (
               <Link
                 href={`/admin/reservasi/${reservation.id}/edit`}
-                className="mt-2 inline-block text-sm font-medium text-gold-700 underline"
+                className="neu-button neu-button-ghost mt-3 inline-flex px-3 py-1.5 text-sm font-medium"
               >
                 Edit data reservasi
               </Link>
@@ -324,7 +333,7 @@ export default async function ReservasiDetailPage({
       {bannerMessage ? (
         <div
           role="alert"
-          className="rounded-md border border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700"
+          className="rounded-xl border border-red-500/60 bg-red-50 px-4 py-3 text-sm text-red-700 shadow-[inset_3px_3px_7px_rgba(159,145,126,0.25),inset_-3px_-3px_7px_rgba(255,255,255,0.7)]"
         >
           {bannerMessage}
         </div>
@@ -342,7 +351,7 @@ export default async function ReservasiDetailPage({
 
         <dl className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+            <dt className="neu-overline">
               Total reservasi
             </dt>
             <dd className="mt-1 text-sm text-ink">
@@ -350,7 +359,7 @@ export default async function ReservasiDetailPage({
             </dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+            <dt className="neu-overline">
               DP minimum 25%
             </dt>
             <dd className="mt-1 text-sm text-ink">
@@ -358,7 +367,7 @@ export default async function ReservasiDetailPage({
             </dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+            <dt className="neu-overline">
               Sudah dibayar
             </dt>
             <dd className="mt-1 text-sm text-ink">
@@ -366,7 +375,7 @@ export default async function ReservasiDetailPage({
             </dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+            <dt className="neu-overline">
               Sisa pembayaran
             </dt>
             <dd className="mt-1 text-sm text-ink">
@@ -374,7 +383,7 @@ export default async function ReservasiDetailPage({
             </dd>
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+            <dt className="neu-overline">
               Batas pelunasan
             </dt>
             <dd className="mt-1 text-sm text-ink">
@@ -485,7 +494,7 @@ export default async function ReservasiDetailPage({
             ) : null}
           </div>
           <div>
-            <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+            <dt className="neu-overline">
               Status pembayaran
             </dt>
             <dd className="mt-1">
@@ -515,8 +524,8 @@ export default async function ReservasiDetailPage({
               Belum ada pembayaran dicatat.
             </p>
           ) : (
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full min-w-[420px] text-left text-sm">
+            <div className="neu-table-wrap mt-3 overflow-x-auto p-2">
+              <table className="neu-table min-w-[420px] text-left text-sm">
                 <thead className="text-gray-600">
                   <tr>
                     <th className="py-2 pr-4">Waktu</th>
@@ -627,7 +636,7 @@ export default async function ReservasiDetailPage({
             </h2>
             <dl className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
-                <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                <dt className="neu-overline">
                   Nama
                 </dt>
                 <dd className="mt-1 text-sm text-ink">
@@ -635,7 +644,7 @@ export default async function ReservasiDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                <dt className="neu-overline">
                   WhatsApp
                 </dt>
                 <dd className="mt-1 text-sm text-ink">
@@ -651,7 +660,7 @@ export default async function ReservasiDetailPage({
             </h2>
             <dl className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
-                <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                <dt className="neu-overline">
                   Nama paket
                 </dt>
                 <dd className="mt-1 text-sm text-ink">
@@ -659,7 +668,7 @@ export default async function ReservasiDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                <dt className="neu-overline">
                   Harga snapshot
                 </dt>
                 <dd className="mt-1 text-sm text-ink">
@@ -667,7 +676,7 @@ export default async function ReservasiDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                <dt className="neu-overline">
                   Durasi
                 </dt>
                 <dd className="mt-1 text-sm text-ink">
@@ -684,7 +693,7 @@ export default async function ReservasiDetailPage({
             </h2>
             <dl className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
-                <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                <dt className="neu-overline">
                   Tanggal acara
                 </dt>
                 <dd className="mt-1 text-sm text-ink">
@@ -692,7 +701,7 @@ export default async function ReservasiDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                <dt className="neu-overline">
                   Jenis acara
                 </dt>
                 <dd className="mt-1 text-sm text-ink">
@@ -700,7 +709,7 @@ export default async function ReservasiDetailPage({
                 </dd>
               </div>
               <div className="sm:col-span-2">
-                <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                <dt className="neu-overline">
                   Alamat
                 </dt>
                 <dd className="mt-1 text-sm text-ink">
@@ -708,7 +717,7 @@ export default async function ReservasiDetailPage({
                 </dd>
               </div>
               <div className="sm:col-span-2">
-                <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                <dt className="neu-overline">
                   Catatan customer
                 </dt>
                 <dd className="mt-1 whitespace-pre-line text-sm text-ink">
@@ -733,8 +742,8 @@ export default async function ReservasiDetailPage({
                 Belum ada item biaya tambahan.
               </p>
             ) : (
-              <div className="mt-4 overflow-x-auto">
-                <table className="w-full min-w-[520px] text-left text-sm">
+              <div className="neu-table-wrap mt-4 overflow-x-auto p-2">
+                <table className="neu-table min-w-[520px] text-left text-sm">
                   <thead className="text-gray-600">
                     <tr>
                       <th className="py-2 pr-4">Deskripsi</th>
@@ -807,8 +816,8 @@ export default async function ReservasiDetailPage({
                 Belum ada riwayat status.
               </p>
             ) : (
-              <div className="mt-4 overflow-x-auto">
-                <table className="w-full min-w-[640px] text-left text-sm">
+              <div className="neu-table-wrap mt-4 overflow-x-auto p-2">
+                <table className="neu-table min-w-[640px] text-left text-sm">
                   <thead className="text-gray-600">
                     <tr>
                       <th className="py-2 pr-4">Waktu</th>
@@ -865,7 +874,7 @@ export default async function ReservasiDetailPage({
                 {reservation.activities.map((activity) => (
                   <li
                     key={activity.id}
-                    className="border-t border-gray-300 pt-4 first:border-t-0 first:pt-0"
+                    className="neu-inset px-4 py-3"
                   >
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <p className="text-sm font-medium text-ink">
@@ -904,7 +913,7 @@ export default async function ReservasiDetailPage({
 
               <dl className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div>
-                  <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                  <dt className="neu-overline">
                     Tanggal acara
                   </dt>
                   <dd className="mt-1 text-sm text-ink">
@@ -912,7 +921,7 @@ export default async function ReservasiDetailPage({
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                  <dt className="neu-overline">
                     Tanggal setup
                   </dt>
                   <dd className="mt-1 text-sm text-ink">
@@ -920,7 +929,7 @@ export default async function ReservasiDetailPage({
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                  <dt className="neu-overline">
                     DP minimum
                   </dt>
                   <dd className="mt-1 text-sm text-ink">
@@ -928,7 +937,7 @@ export default async function ReservasiDetailPage({
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                  <dt className="neu-overline">
                     Sudah dibayar
                   </dt>
                   <dd className="mt-1 text-sm text-ink">
@@ -940,14 +949,14 @@ export default async function ReservasiDetailPage({
               </dl>
 
               {!dpSufficient ? (
-                <p className="mt-4 rounded-md border border-amber-500 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                <p className="mt-4 rounded-xl border border-amber-500/50 bg-amber-50 px-4 py-3 text-sm text-amber-800 shadow-[inset_3px_3px_7px_rgba(159,145,126,0.2),inset_-3px_-3px_7px_rgba(255,255,255,0.65)]">
                   DP terverifikasi belum memenuhi batas minimum untuk
                   konfirmasi.
                 </p>
               ) : null}
 
               {confirmationContext?.hasDateConflict ? (
-                <div className="mt-4 rounded-md border border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="mt-4 rounded-xl border border-red-500/60 bg-red-50 px-4 py-3 text-sm text-red-700 shadow-[inset_3px_3px_7px_rgba(159,145,126,0.25),inset_-3px_-3px_7px_rgba(255,255,255,0.7)]">
                   <p className="font-medium">
                     Tanggal acara atau setup sudah terkunci.
                   </p>
@@ -969,7 +978,7 @@ export default async function ReservasiDetailPage({
                     {confirmationContext.conflicts.map((conflict) => (
                       <li
                         key={conflict.id}
-                        className="rounded-md border border-gray-300 px-3 py-2"
+                        className="neu-inset px-3 py-3"
                       >
                         <p className="text-sm font-medium text-ink">
                           {conflict.customerName} ·{" "}
@@ -1040,7 +1049,7 @@ export default async function ReservasiDetailPage({
 
               <dl className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div>
-                  <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                  <dt className="neu-overline">
                     Tanggal acara saat ini
                   </dt>
                   <dd className="mt-1 text-sm text-ink">
@@ -1048,7 +1057,7 @@ export default async function ReservasiDetailPage({
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                  <dt className="neu-overline">
                     Batas permintaan reschedule
                   </dt>
                   <dd className="mt-1 text-sm text-ink">
@@ -1056,7 +1065,7 @@ export default async function ReservasiDetailPage({
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase tracking-[0.12em] text-gray-600">
+                  <dt className="neu-overline">
                     Sisa jatah reschedule
                   </dt>
                   <dd className="mt-1 text-sm text-ink">
@@ -1066,14 +1075,14 @@ export default async function ReservasiDetailPage({
               </dl>
 
               {reservation.rescheduleCount >= 1 ? (
-                <p className="mt-4 rounded-md border border-amber-500 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                <p className="mt-4 rounded-xl border border-amber-500/50 bg-amber-50 px-4 py-3 text-sm text-amber-800 shadow-[inset_3px_3px_7px_rgba(159,145,126,0.2),inset_-3px_-3px_7px_rgba(255,255,255,0.65)]">
                   Reschedule sudah digunakan. Reservasi ini tidak dapat
                   dipindahkan lagi.
                 </p>
               ) : null}
 
               {rescheduleDeadlinePassed ? (
-                <p className="mt-4 rounded-md border border-amber-500 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                <p className="mt-4 rounded-xl border border-amber-500/50 bg-amber-50 px-4 py-3 text-sm text-amber-800 shadow-[inset_3px_3px_7px_rgba(159,145,126,0.2),inset_-3px_-3px_7px_rgba(255,255,255,0.65)]">
                   Batas reschedule sudah lewat. Tanggal acara tidak dapat
                   dipindahkan lagi.
                 </p>
@@ -1154,7 +1163,7 @@ export default async function ReservasiDetailPage({
             </p>
 
             {reservation.setupNote ? (
-              <div className="mt-4 rounded-md border border-gray-300 bg-gray-50 px-4 py-3">
+              <div className="neu-inset mt-4 px-4 py-3">
                 <p className="whitespace-pre-wrap text-sm text-ink">
                   {reservation.setupNote.note}
                 </p>

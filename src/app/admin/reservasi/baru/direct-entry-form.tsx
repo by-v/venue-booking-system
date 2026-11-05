@@ -128,7 +128,7 @@ export function DirectEntryForm({
       {errorMessage ? (
         <p
           role="alert"
-          className="rounded-md border border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700"
+          className="rounded-xl border border-red-500/60 bg-red-50 px-4 py-3 text-sm text-red-700 shadow-[inset_3px_3px_7px_rgba(159,145,126,0.25),inset_-3px_-3px_7px_rgba(255,255,255,0.7)]"
         >
           {errorMessage}
         </p>
@@ -149,7 +149,7 @@ export function DirectEntryForm({
         ))}
       </Select>
 
-      <div>
+      <div className="neu-inset p-4">
         <p className="text-sm font-medium text-ink">Tanggal acara</p>
         <p className="mt-1 text-sm text-gray-600">
           {selectedDate ? formatDate(selectedDate) : "Belum dipilih"}

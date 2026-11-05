@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Badge, Button, Card, EmptyState, Input, Select } from "@/components/ui";
+import { AdminPageHeader } from "../admin-page-header";
 import { formatRupiah } from "@/lib/format";
 import { requireAdminSession } from "@/modules/auth";
 import { listReservations } from "@/modules/reservation/queries";
@@ -117,23 +118,23 @@ export default async function ReservasiAdminPage({
         : `Belum ada reservasi ${FILTER_LABELS[filter].toLowerCase()}`;
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="font-heading text-2xl font-semibold text-ink">
-            Reservasi
-          </h1>
-          <p className="mt-1 text-sm text-gray-600">
-            Tinjau pengajuan, catat pembayaran, dan kelola status reservasi.
-          </p>
-        </div>
-        <Link
-          href="/admin/reservasi/baru"
-          className="inline-flex items-center justify-center rounded-md bg-gold-500 px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-gold-700 hover:text-white"
-        >
-          Input reservasi
-        </Link>
-      </div>
+    <div className="flex flex-col gap-5">
+      <AdminPageHeader
+        overline="Manajemen reservasi"
+        title="Reservasi"
+        description="Tinjau pengajuan, catat pembayaran, dan kelola status reservasi."
+        actions={
+          <Link
+            href="/admin/reservasi/baru"
+            className="neu-button neu-button-primary px-4 py-2 text-sm font-semibold"
+          >
+            <span aria-hidden="true" className="mr-1.5 text-base leading-none">
+              +
+            </span>
+            Input reservasi
+          </Link>
+        }
+      />
 
       <Card>
         <form
@@ -164,7 +165,7 @@ export default async function ReservasiAdminPage({
           {search.length > 0 ? (
             <Link
               href={clearSearchHref}
-              className="inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-gold-100"
+              className="neu-button neu-button-ghost px-4 py-2 text-sm font-medium"
             >
               Hapus pencarian
             </Link>
@@ -177,9 +178,9 @@ export default async function ReservasiAdminPage({
           <h2 className="font-heading text-lg font-semibold text-ink">
             {FILTER_HEADINGS[filter]}
           </h2>
-          <p className="text-xs text-gray-600">
+          <span className="neu-pill px-3 py-1 text-xs text-gray-600">
             {reservations.length} reservasi
-          </p>
+          </span>
         </div>
 
         {reservations.length === 0 ? (
@@ -204,8 +205,8 @@ export default async function ReservasiAdminPage({
             />
           </div>
         ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[980px] text-left text-sm">
+          <div className="neu-table-wrap mt-4 overflow-x-auto p-2">
+            <table className="neu-table min-w-[980px] text-left text-sm">
               <thead className="text-gray-600">
                 <tr>
                   <th className="py-2 pr-4">Customer</th>
@@ -271,9 +272,9 @@ export default async function ReservasiAdminPage({
                       <Link
                         href={`/admin/reservasi/${encodeURIComponent(reservation.id)}`}
                         aria-label={`Detail reservasi ${reservation.customerName}`}
-                        className="text-sm font-medium text-gold-700 underline"
+                        className="neu-button neu-button-ghost inline-flex px-3 py-1.5 text-sm font-medium"
                       >
-                        Detail
+                        Detail →
                       </Link>
                     </td>
                   </tr>

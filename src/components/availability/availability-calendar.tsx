@@ -43,7 +43,7 @@ export function AvailabilityCalendar({
 
   return (
     <div
-      className={`border border-line-light bg-white p-5 sm:p-6 ${className ?? ""}`}
+      className={`ui-availability border border-line-light bg-white p-5 sm:p-6 ${className ?? ""}`}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <h3 className="font-display text-2xl leading-tight text-ink">

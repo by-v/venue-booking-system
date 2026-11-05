@@ -27,7 +27,7 @@ export function Select({
         id={fieldId}
         aria-invalid={error ? true : undefined}
         aria-describedby={errorId}
-        className={`rounded-md border bg-white px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-gold-500 disabled:cursor-not-allowed disabled:bg-gray-300/40 ${
+        className={`ui-select rounded-md border bg-white px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-gold-500 disabled:cursor-not-allowed disabled:bg-gray-300/40 ${
           error ? "border-red-500" : "border-gray-300"
         } ${className}`.trim()}
         {...rest}

@@ -1,10 +1,9 @@
-import Link from "next/link";
-
 import { Card } from "@/components/ui";
 import { requireAdminSession } from "@/modules/auth";
 import { todayInJakarta } from "@/modules/availability/dates";
 import { listActivePackageSummaries } from "@/modules/venue/queries";
 
+import { AdminPageHeader } from "../../admin-page-header";
 import { createAdminReservation } from "../actions";
 import { DirectEntryForm } from "./direct-entry-form";
 
@@ -39,22 +38,14 @@ export default async function ReservasiBaruPage({
   const bannerMessage = errorMessage(galat);
 
   return (
-    <div className="flex flex-col gap-8">
-      <div>
-        <Link
-          href="/admin/reservasi"
-          className="text-sm font-medium text-gold-700 underline"
-        >
-          ← Kembali ke daftar reservasi
-        </Link>
-        <h1 className="mt-4 font-heading text-2xl font-semibold text-ink">
-          Input reservasi
-        </h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Buat reservasi atas nama customer. Simpan sebagai menunggu, atau
-          langsung terima bila syarat konfirmasi terpenuhi.
-        </p>
-      </div>
+    <div className="flex flex-col gap-5">
+      <AdminPageHeader
+        overline="Input manual"
+        title="Input reservasi"
+        description="Buat reservasi atas nama customer. Simpan sebagai menunggu, atau langsung terima bila syarat konfirmasi terpenuhi."
+        backHref="/admin/reservasi"
+        backLabel="Kembali ke daftar reservasi"
+      />
 
       <Card>
         <DirectEntryForm

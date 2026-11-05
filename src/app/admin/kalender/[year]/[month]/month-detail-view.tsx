@@ -235,10 +235,11 @@ export function MonthDetailView({
 
   return (
     <section className="space-y-4">
-      <div className="rounded-xl border border-gray-300 bg-white">
+      <div className="neu-card overflow-hidden">
         <div className="flex flex-wrap items-start justify-between gap-4 px-6 py-5">
           <div>
-            <h1 className="font-heading text-3xl font-semibold text-ink">
+            <p className="neu-overline">Detail bulan</p>
+            <h1 className="neu-title mt-1 text-3xl">
               {monthName} {year}
             </h1>
             <p className="mt-2 text-sm text-gray-600">
@@ -252,7 +253,7 @@ export function MonthDetailView({
               type="button"
               onClick={() => shiftMonth(-1)}
               aria-label="Bulan sebelumnya"
-              className="rounded-lg border border-gray-300 p-2 text-gray-600 transition-colors hover:bg-ivory"
+              className="neu-button neu-button-ghost h-9 w-9 p-0"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -263,7 +264,7 @@ export function MonthDetailView({
               value={month}
               onChange={(event) => goToMonth(year, Number(event.target.value))}
               aria-label="Pilih bulan"
-              className="h-9 rounded-lg border border-gray-300 bg-white px-3 text-sm text-ink focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-500/20"
+              className="ui-select h-9 rounded-xl px-3 text-sm"
             >
               {MONTHS.map((name, index) => (
                 <option key={name} value={index + 1}>
@@ -276,7 +277,7 @@ export function MonthDetailView({
               type="button"
               onClick={() => shiftMonth(1)}
               aria-label="Bulan berikutnya"
-              className="rounded-lg border border-gray-300 p-2 text-gray-600 transition-colors hover:bg-ivory"
+              className="neu-button neu-button-ghost h-9 w-9 p-0"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -288,17 +289,17 @@ export function MonthDetailView({
             <button
               type="button"
               onClick={goToToday}
-              className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-ivory"
+              className="neu-button neu-button-ghost px-3 py-1.5 text-sm font-medium"
             >
               Hari ini
             </button>
             <Link
               href={`/admin/kalender?year=${year}`}
-              className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-ivory"
+              className="neu-button neu-button-ghost px-3 py-1.5 text-sm font-medium"
             >
               Tahun
             </Link>
-            <span className="rounded-lg bg-ink px-3 py-1.5 text-sm font-medium text-white">
+            <span className="neu-chip px-3 py-1.5 text-sm font-medium text-gold-700" aria-current="page">
               Bulan
             </span>
           </div>
@@ -308,7 +309,7 @@ export function MonthDetailView({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href={`/admin/kalender?year=${year}`}
-          className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 transition-colors hover:bg-ivory"
+          className="neu-button neu-button-ghost inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium"
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -326,10 +327,8 @@ export function MonthDetailView({
                 type="button"
                 onClick={() => setFilter(option.key)}
                 aria-pressed={active}
-                className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                  active
-                    ? option.activeClass
-                    : "bg-white text-gray-600 ring-1 ring-gray-300 hover:bg-ivory"
+                className={`neu-chip inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium ${
+                  active ? option.activeClass : ""
                 }`}
               >
                 <span
@@ -345,11 +344,7 @@ export function MonthDetailView({
             type="button"
             onClick={() => setFilter("semua")}
             aria-pressed={filter === "semua"}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-              filter === "semua"
-                ? "bg-ink text-white"
-                : "bg-white text-gray-600 ring-1 ring-gray-300 hover:bg-ivory"
-            }`}
+            className="neu-chip px-3 py-1.5 text-xs font-medium"
           >
             Semua
           </button>
@@ -357,8 +352,8 @@ export function MonthDetailView({
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="overflow-hidden rounded-xl border border-gray-300 bg-white">
-          <div className="grid grid-cols-7 border-b border-gray-300 bg-ivory/60 py-2 text-center text-xs font-medium text-gray-600">
+        <div className="neu-card overflow-hidden">
+          <div className="neu-inset m-2 grid grid-cols-7 py-2 text-center text-xs font-medium text-gray-600">
             {WEEKDAYS_SHORT.map((day) => (
               <div key={day}>{day}</div>
             ))}
@@ -378,13 +373,13 @@ export function MonthDetailView({
           </div>
         </div>
 
-        <aside className="rounded-xl border border-gray-300 bg-white p-5">
+        <aside className="neu-card p-5">
           {selectedDay ? (
             <>
               <p className="text-xs font-medium uppercase tracking-wider text-gray-600">
                 Tanggal terpilih
               </p>
-              <h2 className="mt-2 font-heading text-xl font-semibold text-ink">
+              <h2 className="font-heading mt-2 text-xl font-semibold text-ink">
                 {weekdayLabel(selectedDay.date)}, {formatDayMonthYear(selectedDay.date)}
               </h2>
               <p className="mt-1 text-sm text-gray-600">
@@ -393,7 +388,7 @@ export function MonthDetailView({
               </p>
 
               {selectedAgendaCount === 0 ? (
-                <div className="mt-5 rounded-lg border border-dashed border-gray-300 bg-ivory/50 px-4 py-8 text-center">
+                <div className="neu-inset mt-5 px-4 py-8 text-center">
                   <p className="text-sm text-gray-600">
                     Tidak ada agenda pada tanggal ini.
                   </p>
@@ -407,7 +402,7 @@ export function MonthDetailView({
                   {visibleSelectedSetups.map((setup) => (
                     <div
                       key={`setup-${setup.reservationId}`}
-                      className="rounded-lg border border-dashed border-gray-300 bg-ivory/50 p-4"
+                      className="neu-inset p-4"
                     >
                       <p className="text-xs font-medium uppercase tracking-wider text-gray-600">
                         Persiapan gedung
@@ -417,7 +412,7 @@ export function MonthDetailView({
                       </h3>
                       <Link
                         href={`/admin/reservasi/${setup.reservationId}`}
-                        className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-gold-700 hover:text-gold-500"
+                        className="neu-button neu-button-ghost mt-3 inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium"
                       >
                         Lihat Reservasi
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -429,7 +424,7 @@ export function MonthDetailView({
                 </div>
               )}
 
-              <div className="mt-5 rounded-lg bg-ivory/70 p-3 text-xs text-gray-600">
+              <div className="neu-inset mt-5 p-3 text-xs text-gray-600">
                 <p>Tanggal yang diterima mengunci tanggal acara dan setup.</p>
                 <p className="mt-1">
                   Pending dan ditangguhkan tidak mengunci tanggal.
@@ -485,10 +480,10 @@ function DayCell({ day, filter, selected, showSetups, onSelect }: DayCellProps) 
       aria-label={`Pilih tanggal ${formatDayMonthYear(day.date)}`}
       className={`min-h-[112px] p-2 text-left align-top transition-colors ${
         selected
-          ? "bg-gold-100/40 ring-2 ring-inset ring-gold-500"
+          ? "bg-gold-100/50 shadow-[inset_0_0_0_2px_var(--gold-500)]"
           : day.inMonth
-            ? "bg-white hover:bg-ivory/60"
-            : "bg-ivory/50 hover:bg-ivory"
+            ? "bg-transparent hover:bg-white/40"
+            : "bg-transparent opacity-60"
       }`}
     >
       <div className="flex items-start justify-between gap-1">
@@ -552,7 +547,7 @@ function EventDetailCard({ event }: { event: CalendarEventEntry }) {
   const meta = statusMeta(event.status);
 
   return (
-    <article className="rounded-lg border border-gray-300 bg-white p-4">
+    <article className="neu-inset p-4">
       <Badge status={meta.badge}>{meta.label}</Badge>
 
       <h3 className="mt-3 font-semibold text-ink">{event.customerName}</h3>
@@ -585,7 +580,7 @@ function EventDetailCard({ event }: { event: CalendarEventEntry }) {
 
       <Link
         href={`/admin/reservasi/${event.id}`}
-        className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-gold-700 hover:text-gold-500"
+        className="neu-button neu-button-ghost mt-4 inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium"
       >
         Lihat Reservasi
         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

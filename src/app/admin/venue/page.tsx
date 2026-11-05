@@ -8,10 +8,11 @@ import {
   listAllPackages,
 } from "@/modules/venue/queries";
 
+import { AdminPageHeader } from "../admin-page-header";
 import { removeFacility, saveFacility, saveVenueProfile } from "./actions";
 
 const cancelClass =
-  "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-gold-100";
+  "neu-button neu-button-ghost px-4 py-2 text-sm font-medium";
 
 export default async function VenuePage({
   searchParams,
@@ -32,20 +33,26 @@ export default async function VenuePage({
     : null;
 
   return (
-    <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="font-heading text-2xl font-semibold text-ink">
-          Venue dan Fasilitas
-        </h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Data identitas venue dan daftar fasilitas beserta relasinya ke paket.
-        </p>
-      </div>
+    <div className="flex flex-col gap-5">
+      <AdminPageHeader
+        overline="Identitas venue"
+        title="Venue dan Fasilitas"
+        description="Data identitas venue dan daftar fasilitas beserta relasinya ke paket."
+      />
 
       <Card>
-        <h2 className="font-heading text-lg font-semibold text-ink">
-          Data venue
-        </h2>
+        <div className="flex items-center gap-3">
+          <span aria-hidden="true" className="neu-icon h-10 w-10">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" className="h-5 w-5">
+              <path d="M4 20V9l8-4 8 4v11" />
+              <path d="M3 20h18" />
+              <path d="M8.5 20v-4.5a3.5 3.5 0 0 1 7 0V20" />
+            </svg>
+          </span>
+          <h2 className="font-heading text-lg font-semibold text-ink">
+            Data venue
+          </h2>
+        </div>
         <form action={saveVenueProfile} className="mt-4 grid gap-4 sm:grid-cols-2">
           <Input
             label="Nama venue"
@@ -92,9 +99,14 @@ export default async function VenuePage({
       </Card>
 
       <Card>
-        <h2 className="font-heading text-lg font-semibold text-ink">
-          {editing ? `Ubah fasilitas: ${editing.name}` : "Tambah fasilitas"}
-        </h2>
+        <div className="flex items-center gap-3">
+          <span aria-hidden="true" className="neu-icon h-10 w-10 text-sm font-semibold">
+            {editing ? "✎" : "+"}
+          </span>
+          <h2 className="font-heading text-lg font-semibold text-ink">
+            {editing ? `Ubah fasilitas: ${editing.name}` : "Tambah fasilitas"}
+          </h2>
+        </div>
         <form action={saveFacility} className="mt-4 flex flex-col gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <Input
@@ -123,6 +135,7 @@ export default async function VenuePage({
               <input
                 type="checkbox"
                 name="active"
+                className="neu-input-check"
                 defaultChecked={editing ? editing.active : true}
               />
               Aktif
@@ -153,6 +166,7 @@ export default async function VenuePage({
                       type="checkbox"
                       name="packageIds"
                       value={pkg.id}
+                      className="neu-input-check"
                       defaultChecked={editing?.packageIds.includes(pkg.id)}
                     />
                     {pkg.name}
@@ -176,59 +190,76 @@ export default async function VenuePage({
       </Card>
 
       <Card>
-        <h2 className="font-heading text-lg font-semibold text-ink">
-          Daftar fasilitas
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-heading text-lg font-semibold text-ink">
+            Daftar fasilitas
+          </h2>
+          <span className="neu-pill px-3 py-1 text-xs text-gray-600">
+            {facilities.length} fasilitas
+          </span>
+        </div>
         {facilities.length === 0 ? (
-          <p className="mt-4 text-sm text-gray-600">Belum ada fasilitas.</p>
+          <p className="neu-inset mt-4 px-4 py-6 text-center text-sm text-gray-600">
+            Belum ada fasilitas.
+          </p>
         ) : (
-          <table className="mt-4 w-full text-left text-sm">
-            <thead className="text-gray-600">
-              <tr>
-                <th className="py-2">Nama</th>
-                <th className="py-2">Paket terkait</th>
-                <th className="py-2">Status</th>
-                <th className="py-2">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {facilities.map((item) => {
-                const related = item.packageIds
-                  .map(
-                    (id) =>
-                      packages.find((pkg) => pkg.id === id)?.name ?? undefined,
-                  )
-                  .filter((name): name is string => Boolean(name));
-                return (
-                  <tr key={item.id} className="border-t border-gray-300">
-                    <td className="py-2 text-ink">{item.name}</td>
-                    <td className="py-2 text-gray-600">
-                      {related.length > 0 ? related.join(", ") : "—"}
-                    </td>
-                    <td className="py-2 text-gray-600">
-                      {item.active ? "Aktif" : "Nonaktif"}
-                    </td>
-                    <td className="py-2">
-                      <div className="flex items-center gap-2">
-                        <Link
-                          href={`/admin/venue?editFacility=${encodeURIComponent(item.id)}`}
-                          className="text-sm font-medium text-gold-700 underline"
-                        >
-                          Ubah
-                        </Link>
-                        <form action={removeFacility}>
-                          <input type="hidden" name="id" value={item.id} />
-                          <Button type="submit" variant="ghost">
-                            Hapus
-                          </Button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="neu-table-wrap mt-4 overflow-x-auto p-2">
+            <table className="neu-table w-full text-left text-sm">
+              <thead className="text-gray-600">
+                <tr>
+                  <th className="px-3 py-2">Nama</th>
+                  <th className="px-3 py-2">Paket terkait</th>
+                  <th className="px-3 py-2">Status</th>
+                  <th className="px-3 py-2">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {facilities.map((item) => {
+                  const related = item.packageIds
+                    .map(
+                      (id) =>
+                        packages.find((pkg) => pkg.id === id)?.name ?? undefined,
+                    )
+                    .filter((name): name is string => Boolean(name));
+                  return (
+                    <tr key={item.id}>
+                      <td className="px-3 py-3 text-ink">{item.name}</td>
+                      <td className="px-3 py-3 text-gray-600">
+                        {related.length > 0 ? related.join(", ") : "—"}
+                      </td>
+                      <td className="px-3 py-3 text-gray-600">
+                        <span className="inline-flex items-center gap-1.5">
+                          <span
+                            aria-hidden="true"
+                            className={`neu-accent-dot ${
+                              item.active ? "bg-emerald-500" : "bg-red-400"
+                            }`}
+                          />
+                          {item.active ? "Aktif" : "Nonaktif"}
+                        </span>
+                      </td>
+                      <td className="px-3 py-3">
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/admin/venue?editFacility=${encodeURIComponent(item.id)}`}
+                            className="neu-button neu-button-ghost px-3 py-1.5 text-sm font-medium"
+                          >
+                            Ubah
+                          </Link>
+                          <form action={removeFacility}>
+                            <input type="hidden" name="id" value={item.id} />
+                            <Button type="submit" variant="ghost">
+                              Hapus
+                            </Button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </Card>
     </div>

@@ -14,7 +14,7 @@ export function ErrorState({
   return (
     <div
       role="alert"
-      className="flex flex-col items-center gap-3 rounded-md border border-gray-300 bg-white px-6 py-12 text-center"
+      className="ui-error flex flex-col items-center gap-3 rounded-md border border-gray-300 bg-white px-6 py-12 text-center"
     >
       <p className="text-base font-semibold text-ink">{message}</p>
       <Button variant="outline" onClick={onRetry}>

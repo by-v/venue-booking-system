@@ -12,6 +12,7 @@ import {
   GALLERY_CATEGORY_LABELS,
 } from "@/modules/venue/types";
 
+import { AdminPageHeader } from "../../../admin-page-header";
 import { updateReservationData } from "../../actions";
 
 const FINAL_STATUSES: readonly ReservationStatus[] = [
@@ -66,28 +67,19 @@ export default async function EditReservationPage({
   const today = todayInJakarta();
 
   return (
-    <div className="flex flex-col gap-8">
-      <div>
-        <Link
-          href={`/admin/reservasi/${reservation.id}`}
-          className="text-sm font-medium text-gold-700 underline"
-        >
-          ← Kembali ke detail reservasi
-        </Link>
-        <h1 className="mt-4 font-heading text-2xl font-semibold text-ink">
-          Edit data reservasi
-        </h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Perbaiki data yang diisi customer tanpa perlu membuat reservasi baru.
-          Data customer dipakai bersama oleh seluruh reservasi dengan nomor
-          WhatsApp yang sama.
-        </p>
-      </div>
+    <div className="flex flex-col gap-5">
+      <AdminPageHeader
+        overline="Koreksi data"
+        title="Edit data reservasi"
+        description="Perbaiki data yang diisi customer tanpa perlu membuat reservasi baru. Data customer dipakai bersama oleh seluruh reservasi dengan nomor WhatsApp yang sama."
+        backHref={`/admin/reservasi/${reservation.id}`}
+        backLabel="Kembali ke detail reservasi"
+      />
 
       {bannerMessage ? (
         <p
           role="alert"
-          className="rounded-md border border-red-500 bg-red-50 px-4 py-3 text-sm text-red-700"
+          className="rounded-xl border border-red-500/60 bg-red-50 px-4 py-3 text-sm text-red-700 shadow-[inset_3px_3px_7px_rgba(159,145,126,0.25),inset_-3px_-3px_7px_rgba(255,255,255,0.7)]"
         >
           {bannerMessage}
         </p>
@@ -198,7 +190,7 @@ export default async function EditReservationPage({
               defaultValue={reservation.notes ?? ""}
             />
 
-            <p className="rounded-md border border-amber-500 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <p className="rounded-xl border border-amber-500/50 bg-amber-50 px-4 py-3 text-sm text-amber-800 shadow-[inset_3px_3px_7px_rgba(159,145,126,0.2),inset_-3px_-3px_7px_rgba(255,255,255,0.65)]">
               Mengubah paket memperbarui harga snapshot. Mengubah paket atau
               tanggal pada reservasi yang sudah diterima akan mengganti kunci
               tanggal acara dan setup sesuai paket baru.
@@ -207,7 +199,7 @@ export default async function EditReservationPage({
             <div className="flex flex-wrap items-center justify-end gap-3 border-t border-line-light pt-5">
               <Link
                 href={`/admin/reservasi/${reservation.id}`}
-                className="text-sm font-medium text-gold-700 underline"
+                className="neu-button neu-button-ghost px-4 py-2 text-sm font-medium"
               >
                 Batal
               </Link>

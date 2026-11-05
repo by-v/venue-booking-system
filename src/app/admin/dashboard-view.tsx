@@ -91,14 +91,14 @@ const VOLUME_CARDS: Array<{
     | "completed"
     | "cancelled";
   label: string;
-  className: string;
+  dotClass: string;
 }> = [
-  { key: "total", label: "Total Job Masuk", className: "bg-white" },
-  { key: "pending", label: "Menunggu", className: "bg-status-pending" },
-  { key: "suspended", label: "Ditangguhkan", className: "bg-status-suspended" },
-  { key: "accepted", label: "Diterima", className: "bg-status-accepted" },
-  { key: "completed", label: "Selesai", className: "bg-white" },
-  { key: "cancelled", label: "Dibatalkan", className: "bg-status-cancelled" },
+  { key: "total", label: "Total Job Masuk", dotClass: "bg-gold-500" },
+  { key: "pending", label: "Menunggu", dotClass: "bg-amber-400" },
+  { key: "suspended", label: "Ditangguhkan", dotClass: "bg-blue-400" },
+  { key: "accepted", label: "Diterima", dotClass: "bg-emerald-500" },
+  { key: "completed", label: "Selesai", dotClass: "bg-emerald-700" },
+  { key: "cancelled", label: "Dibatalkan", dotClass: "bg-red-400" },
 ];
 
 const FOLLOW_UP_REASON_LABELS: Record<DashboardFollowUpReason, string> = {
@@ -141,9 +141,11 @@ function WidgetEmpty({
   description: string;
 }) {
   return (
-    <div className="mt-4 rounded-md border border-dashed border-gray-300 bg-white/60 px-4 py-6 text-center">
+    <div className="neu-inset mt-4 px-4 py-8 text-center">
       <p className="text-sm font-semibold text-ink">{title}</p>
-      <p className="mt-1 text-xs text-gray-600">{description}</p>
+      <p className="mx-auto mt-1 max-w-sm text-xs text-gray-600">
+        {description}
+      </p>
     </div>
   );
 }
@@ -153,27 +155,41 @@ function StatCard({
   value,
   hint,
   testId,
-  className = "bg-white",
+  dotClass = "bg-gold-500",
 }: {
   label: string;
   value: string;
   hint?: string;
   testId?: string;
-  className?: string;
+  dotClass?: string;
 }) {
   return (
     <div
       data-stat-card={testId}
-      className={`rounded-md p-5 shadow-sm ${className}`}
+      className="neu-raised relative flex h-full flex-col p-5 transition-transform duration-200 hover:-translate-y-0.5"
     >
-      <p className="text-sm font-medium text-ink">{label}</p>
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-sm font-medium text-ink">{label}</p>
+        <span
+          aria-hidden="true"
+          className={`neu-accent-dot mt-1 shrink-0 ${dotClass}`}
+        />
+      </div>
       <p
         data-testid={testId}
-        className="mt-3 font-heading text-3xl font-semibold text-ink"
+        className="font-heading mt-3 text-3xl font-semibold leading-tight text-ink"
       >
         {value}
       </p>
-      {hint ? <p className="mt-1 text-xs text-gray-600">{hint}</p> : null}
+      {hint ? (
+        <p className="mt-2 text-xs leading-relaxed text-gray-600">{hint}</p>
+      ) : null}
+      <span
+        aria-hidden="true"
+        className={`mt-auto pt-4`}
+      >
+        <span className={`block h-1 w-10 rounded-full ${dotClass}`} />
+      </span>
     </div>
   );
 }
@@ -184,20 +200,31 @@ export function DashboardView({
   onRetry,
 }: DashboardViewProps) {
   return (
-    <section className="space-y-6">
-      <h1 className="font-heading text-2xl font-semibold text-ink">
-        Dashboard
-      </h1>
+    <section className="space-y-5">
+      <div className="flex flex-wrap items-end justify-between gap-4 px-1">
+        <div>
+          <p className="neu-overline">Ringkasan operasional</p>
+          <h1 className="neu-title mt-1 text-2xl">Dashboard</h1>
+          <p className="mt-1 text-sm text-gray-600">
+            Pantau arus reservasi, keuangan, dan agenda venue dalam satu
+            tampilan.
+          </p>
+        </div>
+        <div className="neu-pill hidden items-center gap-2 px-4 py-2 text-xs font-medium text-gray-600 sm:flex">
+          <span aria-hidden="true" className="h-2 w-2 rounded-full bg-emerald-500" />
+          Data langsung dari reservasi
+        </div>
+      </div>
 
       {status === "loading" ? (
         <div aria-label="Memuat dashboard" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
-            <Skeleton className="h-28 w-full" />
-            <Skeleton className="h-28 w-full" />
-            <Skeleton className="h-28 w-full" />
-            <Skeleton className="h-28 w-full" />
-            <Skeleton className="h-28 w-full" />
-            <Skeleton className="h-28 w-full" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-32 w-full" />
           </div>
           <Skeleton className="h-64 w-full" />
         </div>
@@ -232,11 +259,12 @@ function DashboardContent({ data }: { data: DashboardData }) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <Card>
+    <div className="flex flex-col gap-5">
+      <Card className="overflow-visible">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="font-heading text-lg font-semibold text-ink">
+            <p className="neu-overline">Periode laporan</p>
+            <h2 className="font-heading mt-1 text-lg font-semibold text-ink">
               Ringkasan Tahun {data.year}
             </h2>
             <p className="mt-1 text-sm text-gray-600">
@@ -244,7 +272,11 @@ function DashboardContent({ data }: { data: DashboardData }) {
             </p>
           </div>
 
-          <form action="/admin" method="get" className="flex items-end gap-2">
+          <form
+            action="/admin"
+            method="get"
+            className="neu-inset flex flex-wrap items-end gap-2 p-3"
+          >
             <div className="min-w-36">
               <Select label="Filter tahun" name="tahun" defaultValue={data.year}>
                 {data.availableYears.map((year) => (
@@ -268,7 +300,7 @@ function DashboardContent({ data }: { data: DashboardData }) {
             label={card.label}
             value={formatNumber(stats[card.key])}
             testId={`dashboard-${card.key}`}
-            className={card.className}
+            dotClass={card.dotClass}
           />
         ))}
       </div>
@@ -285,31 +317,36 @@ function DashboardContent({ data }: { data: DashboardData }) {
           value={formatRupiah(stats.verifiedPaymentRupiah)}
           hint="Pembayaran terverifikasi"
           testId="dashboard-verified-payment"
+          dotClass="bg-emerald-500"
         />
         <StatCard
           label="Sisa Piutang"
           value={formatRupiah(stats.remainingRupiah)}
           hint="Nilai diterima − pembayaran masuk"
           testId="dashboard-remaining"
+          dotClass="bg-amber-400"
         />
         <StatCard
           label="Konversi"
           value={`${stats.conversionPercent}%`}
           hint="Diterima & Selesai ÷ total masuk"
           testId="dashboard-conversion"
+          dotClass="bg-blue-400"
         />
         <StatCard
           label="Rata-rata Nilai"
           value={formatRupiah(stats.averageValueRupiah)}
           hint="Per reservasi diterima/selesai"
           testId="dashboard-average-value"
+          dotClass="bg-gold-500"
         />
       </div>
 
       <Card>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="font-heading text-lg font-semibold text-ink">
+            <p className="neu-overline">Agenda</p>
+            <h2 className="font-heading mt-1 text-lg font-semibold text-ink">
               Agenda Reservasi {data.year}
             </h2>
             <p className="mt-1 text-xs text-gray-600">
@@ -320,7 +357,11 @@ function DashboardContent({ data }: { data: DashboardData }) {
             </p>
           </div>
           <div className="flex flex-wrap items-end gap-2">
-            <form action="/admin" method="get" className="flex items-end gap-2">
+            <form
+              action="/admin"
+              method="get"
+              className="neu-inset flex flex-wrap items-end gap-2 p-3"
+            >
               <input type="hidden" name="tahun" value={data.year} />
               <div className="min-w-36">
                 <Select
@@ -345,7 +386,7 @@ function DashboardContent({ data }: { data: DashboardData }) {
             </form>
             <Link
               href={calendarHref}
-              className="pb-2 text-xs font-medium text-gold-700 underline"
+              className="neu-button neu-button-ghost px-3 py-2 text-xs font-medium"
             >
               Lihat semua
             </Link>
@@ -361,12 +402,15 @@ function DashboardContent({ data }: { data: DashboardData }) {
           <div className="mt-4 space-y-6">
             {Array.from(groupedAgenda.entries()).map(([month, items]) => (
               <div key={month}>
-                <h3 className="text-sm font-semibold text-ink">
-                  {MONTH_NAMES[Number(month.slice(5, 7)) - 1]}{" "}
-                  <span className="font-normal text-gray-600">
-                    ({items.length})
-                  </span>
-                </h3>
+                <div className="flex items-center gap-3">
+                  <h3 className="font-heading text-sm font-semibold text-ink">
+                    {MONTH_NAMES[Number(month.slice(5, 7)) - 1]}{" "}
+                    <span className="font-normal text-gray-600">
+                      ({items.length})
+                    </span>
+                  </h3>
+                  <span className="neu-divider flex-1" />
+                </div>
                 <AgendaList items={items} />
               </div>
             ))}
@@ -376,13 +420,16 @@ function DashboardContent({ data }: { data: DashboardData }) {
         )}
       </Card>
 
-      <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
+      <div className="grid gap-5 xl:grid-cols-[1.5fr_1fr]">
         <Card>
           <div className="flex items-center justify-between gap-3">
-            <h2 className="font-heading text-lg font-semibold text-ink">
-              Perlu Tindak Lanjut
-            </h2>
-            <span className="text-xs text-gray-600">
+            <div>
+              <p className="neu-overline">Tindak lanjut</p>
+              <h2 className="font-heading mt-1 text-lg font-semibold text-ink">
+                Perlu Tindak Lanjut
+              </h2>
+            </div>
+            <span className="neu-pill px-3 py-1 text-xs text-gray-600">
               {data.followUps.length} reservasi
             </span>
           </div>
@@ -393,9 +440,12 @@ function DashboardContent({ data }: { data: DashboardData }) {
               description="Permintaan menunggu, pembayaran, dan pemeriksaan admin akan tampil di sini."
             />
           ) : (
-            <ul className="mt-4 divide-y divide-gray-300">
+            <ul className="mt-4 flex flex-col gap-2.5">
               {data.followUps.map((item) => (
-                <li key={item.id} className="py-3 first:pt-0 last:pb-0">
+                <li
+                  key={item.id}
+                  className="neu-inset px-4 py-3 transition-transform duration-200 hover:-translate-y-0.5"
+                >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <Link
                       href={`/admin/reservasi/${encodeURIComponent(item.id)}`}
@@ -414,7 +464,7 @@ function DashboardContent({ data }: { data: DashboardData }) {
                     {item.reasons.map((reason) => (
                       <span
                         key={reason}
-                        className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium text-ink ${FOLLOW_UP_REASON_CLASSES[reason]}`}
+                        className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-medium text-ink shadow-[inset_2px_2px_4px_rgba(159,145,126,0.18),inset_-2px_-2px_4px_rgba(255,255,255,0.65)] ${FOLLOW_UP_REASON_CLASSES[reason]}`}
                       >
                         {followUpReasonLabel(reason)}
                       </span>
@@ -428,12 +478,15 @@ function DashboardContent({ data }: { data: DashboardData }) {
 
         <Card>
           <div className="flex items-center justify-between gap-3">
-            <h2 className="font-heading text-lg font-semibold text-ink">
-              Reservasi Terbaru
-            </h2>
+            <div>
+              <p className="neu-overline">Terbaru</p>
+              <h2 className="font-heading mt-1 text-lg font-semibold text-ink">
+                Reservasi Terbaru
+              </h2>
+            </div>
             <Link
               href="/admin/reservasi"
-              className="text-xs font-medium text-gold-700 underline"
+              className="neu-button neu-button-ghost px-3 py-2 text-xs font-medium"
             >
               Lihat Semua
             </Link>
@@ -445,9 +498,12 @@ function DashboardContent({ data }: { data: DashboardData }) {
               description="Reservasi yang masuk akan tampil di sini."
             />
           ) : (
-            <ul className="mt-4 divide-y divide-gray-300">
+            <ul className="mt-4 flex flex-col gap-2.5">
               {data.recentReservations.map((item) => (
-                <li key={item.id} className="py-3 first:pt-0 last:pb-0">
+                <li
+                  key={item.id}
+                  className="neu-inset px-4 py-3 transition-transform duration-200 hover:-translate-y-0.5"
+                >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <Link
                       href={`/admin/reservasi/${encodeURIComponent(item.id)}`}
@@ -462,7 +518,7 @@ function DashboardContent({ data }: { data: DashboardData }) {
                   <p className="mt-1 text-xs text-gray-600">
                     {eventTypeLabel(item.eventType)} · {formatDate(item.eventDate)}
                   </p>
-                  <p className="mt-1 text-xs text-gray-600">
+                  <p className="mt-1 text-xs font-medium text-gray-600">
                     {formatRupiah(item.totalRupiah)}
                   </p>
                 </li>
@@ -481,7 +537,7 @@ function AgendaList({
   items: DashboardData["agenda"];
 }) {
   return (
-    <ul className="mt-3 divide-y divide-gray-300">
+    <ul className="mt-3 flex flex-col gap-2">
       {items.map((item) => {
         const day = item.eventDate.slice(8, 10);
         const monthName =
@@ -490,9 +546,9 @@ function AgendaList({
           <li key={item.id}>
             <Link
               href={`/admin/reservasi/${encodeURIComponent(item.id)}`}
-              className="flex flex-wrap items-center gap-4 py-3 first:pt-0 last:pb-0 hover:bg-gold-100/40"
+              className="neu-raised group flex flex-wrap items-center gap-4 px-4 py-3 transition-all duration-200 hover:-translate-y-0.5"
             >
-              <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-md bg-gold-100">
+              <div className="neu-inset flex h-12 w-12 shrink-0 flex-col items-center justify-center">
                 <span className="font-heading text-base font-semibold text-ink">
                   {day}
                 </span>
@@ -514,7 +570,10 @@ function AgendaList({
               <Badge status={STATUS_BADGES[item.status]}>
                 {STATUS_LABELS[item.status]}
               </Badge>
-              <span aria-hidden="true" className="text-gray-600">
+              <span
+                aria-hidden="true"
+                className="text-gray-600 transition-transform group-hover:translate-x-1"
+              >
                 →
               </span>
             </Link>

@@ -18,7 +18,7 @@ const statusClasses: Record<BadgeStatus, string> = {
 export function Badge({ status, children, className = "" }: BadgeProps) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-ink ${statusClasses[status]} ${className}`.trim()}
+      className={`ui-badge inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium text-ink ${statusClasses[status]} ${className}`.trim()}
     >
       {children}
     </span>

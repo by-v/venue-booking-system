@@ -44,7 +44,7 @@ export function LogoutButton() {
       onClick={handleSignOut}
       disabled={loading}
       aria-busy={loading || undefined}
-      className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-ivory/60 transition-colors hover:bg-ink-soft hover:text-ivory disabled:cursor-not-allowed disabled:opacity-60"
+      className="neu-button neu-button-ghost flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-60"
     >
       <LogoutIcon />
       <span>{loading ? "Keluar…" : "Keluar"}</span>
@@ -78,24 +78,62 @@ export interface AdminShellProps {
   children: React.ReactNode;
 }
 
+function MenuIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      className="h-5 w-5"
+    >
+      <path d="M4 7h16" />
+      <path d="M4 12h16" />
+      <path d="M4 17h16" />
+    </svg>
+  );
+}
+
 export function AdminShell({ userEmail, children }: AdminShellProps) {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const initial = userEmail.trim().charAt(0).toUpperCase() || "A";
 
   return (
-    <div className="flex min-h-full flex-1">
-      <aside className="flex w-60 shrink-0 flex-col bg-ink px-4 py-5 text-white">
+    <div className="admin-neu flex min-h-full flex-1 flex-col gap-4 p-4 sm:p-5 lg:flex-row lg:gap-5 lg:p-6">
+      {mobileOpen ? (
+        <button
+          type="button"
+          aria-label="Tutup menu admin"
+          onClick={() => setMobileOpen(false)}
+          className="fixed inset-0 z-40 bg-ink/20 backdrop-blur-sm lg:hidden"
+        />
+      ) : null}
+
+      <aside
+        className={`neu-sidebar fixed inset-y-4 left-4 z-50 w-64 flex-col p-4 lg:static lg:z-auto lg:flex lg:h-[calc(100vh-3rem)] lg:w-64 lg:shrink-0 ${
+          mobileOpen ? "flex" : "hidden"
+        }`}
+      >
         <Link
           href="/admin"
-          className="flex items-center gap-3 rounded-2xl bg-gold-500 px-4 py-3 text-ink transition-colors hover:bg-gold-100"
+          onClick={() => setMobileOpen(false)}
+          className="neu-raised flex items-center gap-3 px-3 py-3 transition-transform hover:-translate-y-0.5"
         >
-          <LogoMark className="h-7 w-7" />
-          <span className="font-heading text-lg font-semibold">H.A. Djunaid</span>
+          <span className="neu-icon h-11 w-11 shrink-0">
+            <LogoMark className="h-6 w-6" />
+          </span>
+          <span className="min-w-0">
+            <span className="font-heading block truncate text-base font-semibold text-ink">
+              H.A. Djunaid
+            </span>
+            <span className="neu-overline mt-0.5 block">Admin venue</span>
+          </span>
         </Link>
 
-        <nav
-          aria-label="Menu admin"
-          className="mt-8 flex flex-1 flex-col gap-1"
-        >
+        <nav aria-label="Menu admin" className="mt-6 flex flex-1 flex-col gap-1.5">
           {NAV_ITEMS.map((item) => {
             const active =
               pathname === item.href ||
@@ -107,35 +145,75 @@ export function AdminShell({ userEmail, children }: AdminShellProps) {
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`relative flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors ${
-                  active
-                    ? "bg-ink-soft text-gold-500"
-                    : "text-ivory/60 hover:bg-ink-soft hover:text-ivory"
+                onClick={() => setMobileOpen(false)}
+                className={`neu-nav-item group flex items-center gap-3 px-4 py-3 text-sm font-medium ${
+                  active ? "text-gold-700" : ""
                 }`}
               >
-                {active ? (
-                  <span
-                    aria-hidden="true"
-                    className="absolute -left-4 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-full bg-gold-500"
-                  />
-                ) : null}
-                <Icon />
-                <span>{item.label}</span>
+                <span
+                  aria-hidden="true"
+                  className={`neu-icon h-9 w-9 shrink-0 transition-colors ${
+                    active ? "text-gold-700" : "text-gray-600"
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                </span>
+                <span className="flex-1">{item.label}</span>
+                <span
+                  aria-hidden="true"
+                  className={`h-1.5 w-1.5 rounded-full transition-colors ${
+                    active ? "bg-gold-500" : "bg-transparent"
+                  }`}
+                />
               </Link>
             );
           })}
         </nav>
 
-        <div className="border-t border-line-dark pt-4">
-          <LogoutButton />
-        </div>
+        <div className="neu-divider my-4" />
+        <LogoutButton />
+        <p className="neu-overline mt-4 px-2 text-center">Area admin</p>
       </aside>
 
-      <div className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-gray-300 bg-white px-6 py-4">
-          <span className="text-sm text-gray-600">{userEmail}</span>
+      <div className="flex min-w-0 flex-1 flex-col gap-4">
+        <header className="neu-header flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              type="button"
+              aria-label="Buka menu admin"
+              aria-expanded={mobileOpen}
+              onClick={() => setMobileOpen(true)}
+              className="neu-icon h-10 w-10 shrink-0 lg:hidden"
+            >
+              <MenuIcon />
+            </button>
+            <div className="min-w-0">
+              <p className="neu-overline">Panel administrasi</p>
+              <p className="truncate text-sm font-semibold text-ink">
+                Gedung H.A. Djunaid Convention Center
+              </p>
+            </div>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-3">
+            <div className="hidden text-right sm:block">
+              <p className="text-[11px] font-medium text-gray-600">
+                Masuk sebagai
+              </p>
+              <p className="max-w-64 truncate text-sm font-medium text-ink">
+                {userEmail}
+              </p>
+            </div>
+            <span
+              aria-hidden="true"
+              className="neu-icon h-10 w-10 font-heading text-sm font-semibold text-gold-700"
+            >
+              {initial}
+            </span>
+          </div>
         </header>
-        <main className="flex-1 p-6">{children}</main>
+
+        <main className="min-w-0 flex-1">{children}</main>
       </div>
     </div>
   );

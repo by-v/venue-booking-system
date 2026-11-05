@@ -8,10 +8,11 @@ import {
   GALLERY_CATEGORY_LABELS,
 } from "@/modules/venue/types";
 
+import { AdminPageHeader } from "../admin-page-header";
 import { saveGalleryItem, toggleGalleryItem } from "./actions";
 
 const cancelClass =
-  "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-gold-100";
+  "neu-button neu-button-ghost px-4 py-2 text-sm font-medium";
 
 export default async function GaleriAdminPage({
   searchParams,
@@ -27,19 +28,22 @@ export default async function GaleriAdminPage({
     : null;
 
   return (
-    <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="font-heading text-2xl font-semibold text-ink">Galeri</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Kelola metadata foto: judul, jenis acara, urutan, status, dan lokasi
-          gambar. Tidak ada unggah berkas.
-        </p>
-      </div>
+    <div className="flex flex-col gap-5">
+      <AdminPageHeader
+        overline="Konten visual"
+        title="Galeri"
+        description="Kelola metadata foto: judul, jenis acara, urutan, status, dan lokasi gambar. Tidak ada unggah berkas."
+      />
 
       <Card>
-        <h2 className="font-heading text-lg font-semibold text-ink">
-          {editing ? `Ubah foto: ${editing.title}` : "Tambah foto"}
-        </h2>
+        <div className="flex items-center gap-3">
+          <span aria-hidden="true" className="neu-icon h-10 w-10 text-sm font-semibold">
+            {editing ? "✎" : "+"}
+          </span>
+          <h2 className="font-heading text-lg font-semibold text-ink">
+            {editing ? `Ubah foto: ${editing.title}` : "Tambah foto"}
+          </h2>
+        </div>
         <form action={saveGalleryItem} className="mt-4 grid gap-4 sm:grid-cols-2">
           <Input
             label="ID item"
@@ -86,6 +90,7 @@ export default async function GaleriAdminPage({
             <input
               type="checkbox"
               name="active"
+              className="neu-input-check"
               defaultChecked={editing ? editing.active : true}
             />
             Aktif
@@ -111,62 +116,79 @@ export default async function GaleriAdminPage({
       </Card>
 
       <Card>
-        <h2 className="font-heading text-lg font-semibold text-ink">
-          Daftar foto
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-heading text-lg font-semibold text-ink">
+            Daftar foto
+          </h2>
+          <span className="neu-pill px-3 py-1 text-xs text-gray-600">
+            {items.length} item
+          </span>
+        </div>
         {items.length === 0 ? (
-          <p className="mt-4 text-sm text-gray-600">Belum ada foto.</p>
+          <p className="neu-inset mt-4 px-4 py-6 text-center text-sm text-gray-600">
+            Belum ada foto.
+          </p>
         ) : (
-          <table className="mt-4 w-full text-left text-sm">
-            <thead className="text-gray-600">
-              <tr>
-                <th className="py-2">Judul</th>
-                <th className="py-2">Jenis acara</th>
-                <th className="py-2">Gambar</th>
-                <th className="py-2">Urutan</th>
-                <th className="py-2">Status</th>
-                <th className="py-2">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr key={item.id} className="border-t border-gray-300">
-                  <td className="py-2 text-ink">{item.title}</td>
-                  <td className="py-2 text-gray-600">
-                    {GALLERY_CATEGORY_LABELS[item.category]}
-                  </td>
-                  <td className="max-w-xs truncate py-2 text-gray-600">
-                    {item.imagePath}
-                  </td>
-                  <td className="py-2 text-gray-600">{item.sortOrder}</td>
-                  <td className="py-2 text-gray-600">
-                    {item.active ? "Aktif" : "Nonaktif"}
-                  </td>
-                  <td className="py-2">
-                    <div className="flex items-center gap-2">
-                      <Link
-                        href={`/admin/galeri?edit=${encodeURIComponent(item.id)}`}
-                        className="text-sm font-medium text-gold-700 underline"
-                      >
-                        Ubah
-                      </Link>
-                      <form action={toggleGalleryItem}>
-                        <input type="hidden" name="id" value={item.id} />
-                        <input
-                          type="hidden"
-                          name="active"
-                          value={item.active ? "false" : "true"}
-                        />
-                        <Button type="submit" variant="ghost">
-                          {item.active ? "Nonaktifkan" : "Aktifkan"}
-                        </Button>
-                      </form>
-                    </div>
-                  </td>
+          <div className="neu-table-wrap mt-4 overflow-x-auto p-2">
+            <table className="neu-table w-full text-left text-sm">
+              <thead className="text-gray-600">
+                <tr>
+                  <th className="px-3 py-2">Judul</th>
+                  <th className="px-3 py-2">Jenis acara</th>
+                  <th className="px-3 py-2">Gambar</th>
+                  <th className="px-3 py-2">Urutan</th>
+                  <th className="px-3 py-2">Status</th>
+                  <th className="px-3 py-2">Aksi</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {items.map((item) => (
+                  <tr key={item.id}>
+                    <td className="px-3 py-3 text-ink">{item.title}</td>
+                    <td className="px-3 py-3 text-gray-600">
+                      {GALLERY_CATEGORY_LABELS[item.category]}
+                    </td>
+                    <td className="max-w-xs truncate px-3 py-3 text-gray-600">
+                      {item.imagePath}
+                    </td>
+                    <td className="px-3 py-3 text-gray-600">{item.sortOrder}</td>
+                    <td className="px-3 py-3 text-gray-600">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span
+                          aria-hidden="true"
+                          className={`neu-accent-dot ${
+                            item.active ? "bg-emerald-500" : "bg-red-400"
+                          }`}
+                        />
+                        {item.active ? "Aktif" : "Nonaktif"}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/admin/galeri?edit=${encodeURIComponent(item.id)}`}
+                          className="neu-button neu-button-ghost px-3 py-1.5 text-sm font-medium"
+                        >
+                          Ubah
+                        </Link>
+                        <form action={toggleGalleryItem}>
+                          <input type="hidden" name="id" value={item.id} />
+                          <input
+                            type="hidden"
+                            name="active"
+                            value={item.active ? "false" : "true"}
+                          />
+                          <Button type="submit" variant="ghost">
+                            {item.active ? "Nonaktifkan" : "Aktifkan"}
+                          </Button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </Card>
     </div>

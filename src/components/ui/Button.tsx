@@ -31,7 +31,8 @@ export function Button({
   return (
     <button
       type={type}
-      className={`${base} ${variantClasses[variant]} ${className}`.trim()}
+      className={`ui-button ${base} ${variantClasses[variant]} ${className}`.trim()}
+      data-variant={variant}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       {...rest}
